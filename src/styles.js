@@ -14,12 +14,13 @@ export const CARD_STYLES = `
 .date{font-size:var(--date-font);line-height:1.3;color:var(--muted);margin-top:16px;overflow-wrap:anywhere}
 .footer{display:grid;gap:14px;min-width:0}
 .readings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px;width:var(--readings-width);max-width:100%}
-.reading{min-width:0;overflow-wrap:anywhere}
+.reading{min-width:0;min-height:48px;overflow-wrap:anywhere;border:0;padding:0;background:transparent;color:inherit;font:inherit;text-align:start;border-radius:3px;cursor:pointer}.reading:disabled{opacity:1;cursor:default}
 .reading strong{font-size:var(--reading-font);font-weight:400;line-height:1.2;letter-spacing:-.025em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .reading small{font-size:.44em;color:var(--muted);letter-spacing:0;margin-inline-start:3px}
 .reading span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:var(--label-font);color:var(--muted);margin-top:6px;line-height:1.3}
 .weather,.co2-caption{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:var(--label-font);line-height:1.4;overflow-wrap:anywhere;min-width:0}
-.weather svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;flex:none}
+.weather-copy{min-width:0}.weather-copy>span{display:block}.forecast{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.92em}.weather svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;flex:none}
+.co2-caption span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dot{background:var(--air-color,var(--muted));width:7px;height:7px;border-radius:50%;flex:none}
 .rail-caption{position:absolute;bottom:14px;right:var(--pad);max-width:calc(100% - 2 * var(--pad))}
 .calendar{min-width:0;min-height:0;border-inline-start:1px solid var(--divider);padding-inline-start:var(--gap);padding-top:var(--calendar-top);overflow:hidden}

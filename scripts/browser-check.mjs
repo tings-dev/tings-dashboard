@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { checkEnvironment } from './environment-browser-check.mjs';
 import { startServer } from './serve.mjs';
 await import('./build.mjs');
 const server = await startServer(0);
@@ -101,7 +102,7 @@ try {
   assert.match(await page.locator('#yaml-error').textContent(), /layout.clock_scale/);
   assert.equal(await card.locator('.period').textContent(), 'PM');
   // HA state updates must not rebuild the clock or disturb control identity.
-  const unchanged = await page.evaluate(() => { const node = preview.card.shadowRoot.querySelector('.digits'); preview.card.hass = { ...preview.hass, states: {} }; return node === preview.card.shadowRoot.querySelector('.digits'); });
+  const unchanged = await page.evaluate(() => { const node = preview.card.shadowRoot.querySelector('.digits'); preview.card.hass = { ...preview.hass, states: { ...preview.card.hass.states, "sensor.unrelated": { state: "1" } } }; return node === preview.card.shadowRoot.querySelector('.digits'); });
   assert.ok(unchanged);
   await page.evaluate(() => { const c = preview.config; c.language = 'de-DE'; c.date_format = 'long'; preview.commit(c); });
   assert.match(await card.locator('.date').textContent(), /Sonntag.*November/);
@@ -116,6 +117,7 @@ try {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   assert.equal(await card.locator('.screen').evaluate(e => getComputedStyle(e).transitionDuration), '0s');
   assert.equal((await readFile('dist/info-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
+  await checkEnvironment(page, bounds, settle);
   assert.deepEqual(errors, []);
   console.log(`Browser checks passed: ${layouts} theme/layout combinations, focus stability, tuning extremes, editor/YAML drafts, injection, locale, and lifecycle.`);
 } finally {

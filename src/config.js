@@ -7,7 +7,21 @@ export const THEMES = {
 export const FEATURES = ['room', 'clock', 'date', 'readings', 'weather', 'calendar', 'co2_bar', 'co2_value', 'co2_status', 'co2_marks'];
 const field = (path, kind, defaultValue, group, extra = {}) => ({ path, kind, defaultValue, group, ...extra });
 // One schema supplies defaults, validation, editor controls, and configuration docs.
+export const DEFAULT_THRESHOLDS = [
+  { value: 800, color: '#c5c691', label: 'Raised' },
+  { value: 1000, color: '#d9b36f', label: 'Elevated' },
+  { value: 1400, color: '#db8d64', label: 'High' },
+  { value: 1800, color: '#c96964', label: 'Very high' },
+];
 export const FIELDS = [
+  field('co2.entity', 'entity', '', 'co2', { domain: 'sensor' }),
+  field('co2.minimum', 'number', 400, 'co2', { min: 0, max: 1000000 }),
+  field('co2.maximum', 'number', 2000, 'co2', { min: 0, max: 1000000 }),
+  field('co2.base_color', 'band_color', '#8daea0', 'co2'),
+  field('co2.base_label', 'text', 'Low', 'co2'),
+  field('weather.entity', 'entity', '', 'weather', { domain: 'weather' }),
+  field('weather.forecast', 'boolean', false, 'weather'),
+  field('weather.forecast_type', 'select', 'auto', 'weather', { options: ['auto', 'hourly', 'daily', 'twice_daily'] }),
   field('room_name', 'text', '', 'content'),
   field('language', 'locale', 'auto', 'clock'),
   field('time_zone', 'zone', 'auto', 'clock'),
@@ -48,6 +62,9 @@ export class ConfigError extends Error {
 export function validateField(field, value) {
   const bad = (code, args) => { throw new ConfigError(field.path, code, args); };
   switch (field.kind) {
+    case 'entity': if (typeof value !== 'string' || (value !== '' && !new RegExp(`^${field.domain}\\.[a-z0-9_]+$`).test(value))) bad('entity', { domain: field.domain }); break;
+    case 'precision': if (value !== 'auto' && !(Number.isInteger(value) && value >= 0 && value <= 6)) bad('precision'); break;
+    case 'band_color': if (typeof value !== 'string' || !/^#[\da-f]{6}$/i.test(value)) bad('band_color'); break;
     case 'boolean': if (typeof value !== 'boolean') bad('boolean'); break;
     case 'number': if (typeof value !== 'number' || !Number.isFinite(value) || value < field.min || value > field.max) bad('range', field); break;
     case 'height': if (value !== 'viewport' && !(Number.isFinite(value) && value >= 480 && value <= 1600)) bad('height'); break;
@@ -64,19 +81,47 @@ export function normalizeConfig(input) {
   if (!plain(input)) throw new ConfigError('config', 'object');
   if (input.type !== undefined && input.type !== CARD_TYPE) throw new ConfigError('type', 'type');
   if (input.schema_version !== undefined && input.schema_version !== 1) throw new ConfigError('schema_version', 'version');
-  for (const path of ['appearance', 'appearance.colors', 'appearance.night_colors', 'layout', 'features', ...FEATURES.map(f => `features.${f}`)]) {
+  for (const path of ['co2', 'weather', 'appearance', 'appearance.colors', 'appearance.night_colors', 'layout', 'features', ...FEATURES.map(f => `features.${f}`)]) {
     const value = getPath(input, path);
     if (value !== undefined && !plain(value)) throw new ConfigError(path, 'object');
   }
   const result = structuredClone(input);
   result.type = CARD_TYPE; result.schema_version = 1;
-  for (const definition of FIELDS) {
-    const supplied = getPath(input, definition.path);
+  result.readings = input.readings === undefined ? [] : structuredClone(input.readings);
+  if (!Array.isArray(result.readings) || result.readings.length > 4) throw new ConfigError('readings', 'readings');
+  result.co2 ??= {};
+  result.co2.thresholds = input.co2?.thresholds === undefined ? structuredClone(DEFAULT_THRESHOLDS) : structuredClone(input.co2.thresholds);
+  if (!Array.isArray(result.co2.thresholds)) throw new ConfigError('co2.thresholds', 'thresholds');
+  for (const path of ['readings', 'co2.thresholds']) {
+    getPath(result, path).forEach((item, index) => { if (!plain(item)) throw new ConfigError(`${path}.${index}`, 'object'); });
+  }
+  for (const definition of configFields(result)) {
+    const supplied = getPath(result, definition.path);
     const value = supplied === undefined ? definition.defaultValue : supplied;
     validateField(definition, value);
     setPath(result, definition.path, value);
   }
+  if (result.co2.maximum <= result.co2.minimum) throw new ConfigError('co2.maximum', 'co2_range');
+  result.co2.thresholds.forEach((band, index, bands) => {
+    if (index && band.value <= bands[index - 1].value) throw new ConfigError(`co2.thresholds.${index}.value`, 'threshold_order');
+  });
   return result;
+}
+export function configFields(config) {
+  return [...FIELDS,
+    ...(config.readings ?? []).flatMap((_, i) => [
+      field(`readings.${i}.entity`, 'entity', '', 'readings', { domain: 'sensor', label: 'entity' }),
+      field(`readings.${i}.label`, 'text', '', 'readings', { label: 'reading_label' }),
+      field(`readings.${i}.precision`, 'precision', 'auto', 'readings', { label: 'precision' }),
+      field(`readings.${i}.enabled`, 'boolean', true, 'readings', { label: 'enabled' }),
+      field(`readings.${i}.night`, 'boolean', true, 'readings', { label: 'night' }),
+    ]),
+    ...(config.co2?.thresholds ?? []).flatMap((_, i) => [
+      field(`co2.thresholds.${i}.value`, 'number', 800, 'thresholds', { min: 0, max: 1000000, label: 'threshold_value' }),
+      field(`co2.thresholds.${i}.color`, 'band_color', '#c5c691', 'thresholds', { label: 'band_color' }),
+      field(`co2.thresholds.${i}.label`, 'text', '', 'thresholds', { label: 'band_label' }),
+    ]),
+  ];
 }
 export function visibleFeatures(config, night) {
   return Object.fromEntries(FEATURES.map(key => [key, config.features[key].enabled && (!night || config.features[key].night)]));

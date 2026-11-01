@@ -1,3 +1,5 @@
+import { environmentPresentation } from './environment.js';
+import { ForecastSource } from './forecast.js';
 import { normalizeConfig } from './config.js';
 import { makeClockFormatter, resolveClockPreferences } from './clock.js';
 import { translator, configErrorText } from './i18n.js';
@@ -10,10 +12,15 @@ export class InfoDashboard extends HTMLElement {
     const style = document.createElement('style'); style.textContent = CARD_STYLES;
     this._root = document.createElement('div');
     this.shadowRoot.append(style, this._root);
-    this._presentation = EMPTY_PRESENTATION;
+    this._presentation = {};
+    this._forecast = new ForecastSource(() => this._refreshData());
     this._night = false;
     this._resize = new ResizeObserver(() => this._layout());
     this._onVisibility = () => this._startClock();
+    this._root.addEventListener('click', event => {
+      const button = event.target.closest('button.reading');
+      if (button && !button.disabled && button.dataset.entity) this.dispatchEvent(new CustomEvent('hass-more-info', { detail: { entityId: button.dataset.entity }, bubbles: true, composed: true }));
+    });
   }
   static getConfigElement() { return document.createElement('info-dashboard-editor'); }
   static getStubConfig() { return { schema_version: 1 }; }
@@ -27,34 +34,37 @@ export class InfoDashboard extends HTMLElement {
     this._config = next;
     this.style.height = `var(--info-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--header-height, 0px))' : `${next.layout.height}px`})`;
     this.classList.toggle('motion', next.motion);
-    this._render();
+    this._syncForecast(); this._render();
   }
   set hass(value) {
     this._hass = value;
     if (!this._config) return;
     const next = resolveClockPreferences(this._config, value);
+    this._syncForecast();
     if (JSON.stringify(next) !== JSON.stringify(this._preferences)) this._render();
+    else this._refreshData();
   }
   get hass() { return this._hass; }
   // Adapter-facing state, not persisted configuration. Stage 4 will supply night.
   set night(value) {
     if (typeof value !== 'boolean') throw new TypeError('night must be boolean');
     if (value === this._night) return;
-    this._night = value; this._render();
+    this._night = value; this._syncForecast(); this._render();
   }
   get night() { return this._night; }
   set presentation(value) {
     if (value?.readings?.length > 4) throw new RangeError('At most four displayed readings');
-    this._presentation = value ? structuredClone(value) : EMPTY_PRESENTATION;
+    this._presentation = value ? structuredClone(value) : {};
     this._render();
   }
   connectedCallback() {
     this._resize.observe(this);
     document.addEventListener('visibilitychange', this._onVisibility);
     if (!this._config) this.setConfig({});
-    this._startClock();
+    this._syncForecast(); this._startClock();
   }
   disconnectedCallback() {
+    this._forecast.stop();
     this._resize.disconnect();
     clearTimeout(this._timer); this._timer = undefined;
     document.removeEventListener('visibilitychange', this._onVisibility);
@@ -66,12 +76,33 @@ export class InfoDashboard extends HTMLElement {
     this._tick();
     if (!document.hidden) this._timer = setTimeout(() => this._startClock(), 1000 - Date.now() % 1000);
   }
+  _syncForecast() {
+    if (this._config) this._forecast.update(this._config, this._hass, this._night, this.isConnected);
+  }
+  _data() {
+    return { ...EMPTY_PRESENTATION, ...environmentPresentation(this._config, this._hass, this._night, this._preferences, this._t, this._forecast.items, this.currentTime()), ...this._presentation };
+  }
+  _refreshData() {
+    if (!this._preferences || !this._config) return;
+    if (JSON.stringify(this._data()) !== this._dataSignature) this._render();
+  }
   _render() {
     if (!this._config) return;
     this._preferences = resolveClockPreferences(this._config, this._hass);
     this._format = makeClockFormatter(this._preferences);
     this._t = translator(this._preferences.locale);
-    renderView(this._root, this._config, this._presentation, this._night, this._t);
+    const data = this._data(); this._dataSignature = JSON.stringify(data);
+    const active = this.shadowRoot.activeElement;
+    const buttons = new Map([...this._root.querySelectorAll('button.reading')].map(button => [button.dataset.key, button]));
+    renderView(this._root, this._config, data, this._night, this._t);
+    // Preserve the native control and keyboard focus when live readings change.
+    for (const button of this._root.querySelectorAll('button.reading')) {
+      const old = buttons.get(button.dataset.key);
+      if (!old) continue;
+      old.innerHTML = button.innerHTML; old.disabled = button.disabled; old.title = button.title; old.setAttribute('aria-label', button.getAttribute('aria-label'));
+      button.replaceWith(old);
+      if (old === active && !old.disabled) old.focus({ preventScroll: true });
+    }
     this._root.lang = this._preferences.locale;
     this._tick(); this._layout();
   }
@@ -85,6 +116,7 @@ export class InfoDashboard extends HTMLElement {
     }
     this._root.querySelector('.clock')?.setAttribute('aria-label', value.accessibleTime);
     this._fitClock();
+    this._refreshData();
   }
   _layout() {
     if (!this._config || !this.isConnected) return;

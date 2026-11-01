@@ -1,6 +1,6 @@
 # Dashboard implementation plan
 
-Status: accepted in Q39. Stage 1 was explicitly requested and is implemented locally. Stages 2–5 remain pending and require separate requests. See [stage-1 notes](stage-1.md) for the actual configuration, verification, and limitations.
+Status: accepted in Q39. Stages 1 and 2 were explicitly requested and are implemented locally. Stages 3–5 remain pending and require separate requests. See [stage-1 notes](stage-1.md) and [stage-2 notes](stage-2.md) for configuration, verification, and limitations.
 
 Implement the [dashboard design](dashboard-design.md) one stage at a time when requested. Each stage should produce a usable, reviewable increment with its configuration controls and matching documentation. Do not postpone all configuration, error handling, or accessibility work until the end.
 
@@ -21,6 +21,8 @@ Acceptance:
 - Initial editor fields match YAML behavior; invalid drafts preserve existing settings.
 
 ## Stage 2 — Room readings, CO₂, and weather
+
+Completed locally: selected live numerical readings, native details events, CO₂ scale/bands, current weather and optional subscribed forecast, editor list/source controls, and matching YAML validation. Focused rule/lifecycle tests and expanded browser checks cover unavailable data, four-reading/forecast layouts, default contrast, editor drafts, and teardown/reconnection. Actual HA hosting and devices remain unverified.
 
 Connect explicitly selected entities. Implement zero through four ordered readings, individual labels and visibility, units/precision handling, native entity-details actions, CO₂ height/color rules, and weather condition display. Add the optional forecast summary according to accepted Q37.
 
