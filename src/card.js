@@ -16,6 +16,12 @@ export class InfoDashboard extends HTMLElement {
     const style = document.createElement('style'); style.textContent = CARD_STYLES;
     this._root = document.createElement('div');
     this.shadowRoot.append(style, this._root);
+    this._dialog = document.createElement('dialog'); this._dialog.className = 'event-details';
+    this.shadowRoot.append(this._dialog);
+    this._dialog.addEventListener('close', () => {
+      const target = this._dialogTrigger?.isConnected ? this._dialogTrigger : this._root.querySelector('.calendar-heading');
+      target?.focus({ preventScroll: true });
+    });
     this._presentation = {};
     this._forecast = new ForecastSource(() => this._refreshData());
     this._calendar = new CalendarSource(() => this._refreshData(), () => this.currentTime().getTime());
@@ -33,6 +39,8 @@ export class InfoDashboard extends HTMLElement {
     this._resize = new ResizeObserver(() => this._layout());
     this._onVisibility = () => this._startClock();
     this._root.addEventListener('click', event => {
+      const title = event.target.closest('button.event-title');
+      if (title) { this._showTitle(title); return; }
       const action = event.target.closest('button.calendar-action');
       if (action) { this._calendarAction(action); return; }
       const button = event.target.closest('button.reading');
@@ -71,7 +79,7 @@ export class InfoDashboard extends HTMLElement {
     if (typeof value !== 'boolean') throw new TypeError('night must be boolean');
     this._manualNight = value;
     if (this._config?.night.mode !== 'off' || value === this._night) return;
-    this._night = value; this._syncSources(); this._render();
+    this._night = value; this._dialog.close(); this._syncSources(); this._render();
   }
   get night() { return this._night; }
   set presentation(value) {
@@ -88,6 +96,7 @@ export class InfoDashboard extends HTMLElement {
     this._syncSources(); this._render(); this._startClock();
   }
   disconnectedCallback() {
+    this._dialog.close();
     this._forecast.stop(); this._calendar.stop();
     this._resize.disconnect();
     clearTimeout(this._timer); this._timer = undefined;
@@ -105,12 +114,21 @@ export class InfoDashboard extends HTMLElement {
     if (!this._config) return false;
     const next = this._config.night.mode === 'off' ? this._manualNight ?? false : this._nightControl.resolve(this._config, this._hass, this.currentTime());
     if (next === this._night) return false;
-    this._night = next; return true;
+    this._night = next; this._dialog.close(); return true;
   }
   _syncSources() {
     if (!this._config) return;
     this._forecast.update(this._config, this._hass, this._night, this.isConnected);
     this._calendar.update(this._config, this._hass, this._night, this.isConnected, resolveClockPreferences(this._config, this._hass).timeZone);
+  }
+  _showTitle(button) {
+    this._dialog.replaceChildren();
+    const title = document.createElement('h2'); title.id = 'event-details-title'; title.textContent = this._t('event_details');
+    const full = document.createElement('p'); full.textContent = button.dataset.fullTitle;
+    const close = document.createElement('button'); close.type = 'button'; close.textContent = this._t('close'); close.onclick = () => this._dialog.close();
+    this._dialog.append(title, full, close); this._dialog.setAttribute('aria-labelledby', title.id);
+    for (const color of ['background', 'text', 'accent', 'divider']) this._dialog.style.setProperty(`--${color}`, getComputedStyle(this._root).getPropertyValue(`--${color}`));
+    this._dialogTrigger = button; this._dialog.showModal();
   }
   _calendarAction(button) {
     const now = this.currentTime().getTime(), data = this._data().calendar;
@@ -139,10 +157,10 @@ export class InfoDashboard extends HTMLElement {
     this._t = translator(this._preferences.locale);
     const data = this._data(); this._dataSignature = JSON.stringify(data);
     const active = this.shadowRoot.activeElement;
-    const buttons = new Map([...this._root.querySelectorAll('button.reading, button.calendar-action, h2[data-key]')].map(button => [button.dataset.key, button]));
+    const buttons = new Map([...this._root.querySelectorAll('button.reading, button.calendar-action, button.event-title')].map(button => [button.dataset.key, button]));
     renderView(this._root, this._config, data, this._night, this._t);
     // Preserve the native control and keyboard focus when live readings change.
-    for (const button of this._root.querySelectorAll('button.reading, button.calendar-action, h2[data-key]')) {
+    for (const button of this._root.querySelectorAll('button.reading, button.calendar-action, button.event-title')) {
       const old = buttons.get(button.dataset.key);
       if (!old) continue;
       old.innerHTML = button.innerHTML;
@@ -151,7 +169,7 @@ export class InfoDashboard extends HTMLElement {
       button.replaceWith(old);
       if (old === active && !old.disabled) old.focus({ preventScroll: true });
     }
-    if (active?.matches('.calendar-action, h2[data-key]') && !this._root.contains(active)) this._root.querySelector('.calendar-heading')?.focus({ preventScroll: true });
+    if (active?.matches('.calendar-action, .event-title') && !this._root.contains(active)) this._root.querySelector('.calendar-heading')?.focus({ preventScroll: true });
     this._root.lang = this._preferences.locale;
     this._tick(); this._layout();
   }

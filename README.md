@@ -1,6 +1,6 @@
 # Info Dashboard
 
-Stages 1–4 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light/night appearance, and a visual editor sharing validation with YAML. Automatic night activation supports HA-timezone schedules and persistent on/off entity control. Packaging and device acceptance remain stage 5. See [stage 4 configuration and verification](docs/stage-4.md).
+Stages 1–4 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light/night appearance, and a visual editor sharing validation with YAML. Automatic night activation supports HA-timezone schedules and persistent on/off entity control. Stage 5 software audit and release preparation are implemented; physical device acceptance remains pending. See [stage 5 results](docs/stage-5.md).
 
 ```sh
 npm ci
@@ -8,6 +8,8 @@ npm run preview
 ```
 
 Open <http://127.0.0.1:8765>. This development preview uses the actual card bundle with mock Home Assistant sensor, weather, and calendar responses, an optional live clock, and visual-editor/YAML round trips. Build the standalone card with `npm run build`; the output is `dist/info-dashboard.js`.
+
+For installation and distribution, see [installation](docs/installation.md). The [complete configuration reference](docs/configuration.md) is generated from the shared editor/YAML schema. `npm run package` creates the standalone `release/info-dashboard.js` bundle and SHA-256 checksum. Release publishing and household migration are separate actions.
 
 See [calendar configuration and Done/Undo](docs/stage-3.md), [sensor, CO₂, and weather configuration](docs/stage-2.md) and [clock/layout configuration](docs/stage-1.md). Run `npm run check`, `npm test`, and `npm run test:browser`; browser checks require a Playwright Chromium installation or `INFO_DASHBOARD_CHROMIUM` pointing to a compatible binary.
 

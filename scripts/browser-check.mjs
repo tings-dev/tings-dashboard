@@ -1,16 +1,18 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { checkAudit } from './audit-browser-check.mjs';
 import { checkNight } from './night-browser-check.mjs';
 import { checkCalendars } from './calendar-browser-check.mjs';
 import { checkEnvironment } from './environment-browser-check.mjs';
 import { startServer } from './serve.mjs';
 await import('./build.mjs');
+await import('./package.mjs');
 const server = await startServer(0);
 let browser;
 try {
   browser = await chromium.launch({ executablePath: process.env.INFO_DASHBOARD_CHROMIUM || undefined });
-  const page = await browser.newPage({ viewport: { width: 1400, height: 1200 } });
+  const page = await browser.newPage({ viewport: { width: 1400, height: 1200 }, hasTouch: true });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}`);
   await page.waitForFunction(() => window.preview);
@@ -123,6 +125,7 @@ try {
   await checkEnvironment(page, bounds, settle);
   await checkCalendars(page, bounds, settle);
   await checkNight(page, bounds, settle);
+  await checkAudit(page, bounds, settle);
   assert.deepEqual(errors, []);
   console.log(`Browser checks passed: ${layouts} theme/layout combinations, focus stability, tuning extremes, editor/YAML drafts, injection, locale, and lifecycle.`);
 } finally {

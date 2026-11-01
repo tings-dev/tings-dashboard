@@ -32,6 +32,8 @@ export class InfoDashboardEditor extends HTMLElement {
   _language() { return this._draft?.language === 'auto' ? this._hass?.locale?.language ?? this._hass?.language ?? 'en' : this._draft?.language ?? 'en'; }
   _render() {
     if (!this._config) return;
+    const active = this.shadowRoot.activeElement, focusPath = active?.dataset.path;
+    const selection = active?.selectionStart == null ? null : [active.selectionStart, active.selectionEnd];
     this._languageRendered = this._language(); this._t = translator(this._languageRendered);
     this.shadowRoot.replaceChildren();
     const style = document.createElement('style'); style.textContent = STYLES; this.shadowRoot.append(style);
@@ -52,6 +54,11 @@ export class InfoDashboardEditor extends HTMLElement {
       this.shadowRoot.append(section);
     }
     this._suggestions(); this._showError(); this._nightStatus();
+    if (focusPath) {
+      const control = this.shadowRoot.querySelector(`[data-path="${focusPath}"]`);
+      control?.focus({ preventScroll: true });
+      if (selection) control?.setSelectionRange(...selection);
+    }
   }
   _field(field) {
     const wrapper = document.createElement('div');
@@ -153,7 +160,8 @@ export class InfoDashboardEditor extends HTMLElement {
         this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: structuredClone(candidate) }, bubbles: true, composed: true }));
       }
     } catch (error) { this._error = error; }
-    this._showError(); this._nightStatus();
+    if (!this._error && this._languageRendered !== this._language()) this._render();
+    else { this._showError(); this._nightStatus(); }
   }
   _nightStatus() {
     const status = this.shadowRoot.getElementById('night-status');

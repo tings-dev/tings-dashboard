@@ -1,0 +1,13 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { buildCard, version } from './build-card.mjs';
+const manifest = JSON.parse(await readFile('hacs.json', 'utf8'));
+if (manifest.filename !== 'info-dashboard.js' || manifest.hide_default_branch !== true) throw new Error('Expected release-only HACS configuration');
+const output = `release/${manifest.filename}`;
+const result = await buildCard({ outfile: output, minify: true, sourcemap: false, metafile: true });
+if (Object.values(result.metafile.outputs).some(file => file.imports.length)) throw new Error('Release must have no runtime imports');
+const data = await readFile(output);
+const hash = createHash('sha256').update(data).digest('hex');
+await mkdir('release', { recursive: true });
+await writeFile('release/SHA256SUMS', `${hash}  ${manifest.filename}\n`);
+console.log(`Prepared Info Dashboard ${version}: ${output} (${data.length} bytes) and release/SHA256SUMS. No release was published.`);

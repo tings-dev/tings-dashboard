@@ -1,4 +1,5 @@
 const en = {
+  event_details: 'Full event title', close: 'Close',
   "error_control_entity": "Choose an entity ID such as input_boolean.night, or leave empty.",
   "night_control": "Night activation",
   "night.mode": "Activation mode",
@@ -115,6 +116,7 @@ const en = {
   error_boolean: 'Use true or false.', error_range: 'Use a number from {min} to {max}.', error_height: 'Use viewport or a number from 480 to 1600.', error_choice: 'Choose a supported option.', error_text: 'Use text of at most 100 characters.', error_color: 'Use an empty value or a six/eight-digit hex color.', error_locale: 'Use auto or a supported language tag.', error_zone: 'Use auto or a valid IANA timezone.', error_object: 'Use a mapping.', error_type: 'Use custom:info-dashboard.', error_version: 'Only schema version 1 is supported.',
 };
 const de = {
+  event_details: 'Vollständiger Termintitel', close: 'Schließen',
   "error_control_entity": "Eine Entitäts-ID wie input_boolean.night wählen oder leer lassen.",
   "night_control": "Nachtaktivierung",
   "night.mode": "Aktivierungsmodus",
@@ -228,6 +230,7 @@ const de = {
   background: 'Hintergrund', text: 'Haupttext', muted: 'Nebentext', accent: 'Akzent', divider: 'Trennlinien', rail: 'Leere CO₂-Anzeige', auto: 'Home Assistant folgen', dark: 'Dunkelgrün', light: 'Warmes Papier', night_preset: 'Gedämpfte Nacht', long: 'Lang', short: 'Kurz', '12': '12 Stunden', '24': '24 Stunden', DMY: 'Tag / Monat / Jahr', MDY: 'Monat / Tag / Jahr', YMD: 'Jahr-Monat-Tag',
   inherit_color: 'Leer übernimmt das Design; #RRGGBB oder #RRGGBBAA', invalid: '{path}: {reason}', error_boolean: 'true oder false verwenden.', error_range: 'Eine Zahl von {min} bis {max} verwenden.', error_height: 'viewport oder eine Zahl von 480 bis 1600 verwenden.', error_choice: 'Eine unterstützte Option wählen.', error_text: 'Text mit höchstens 100 Zeichen verwenden.', error_color: 'Leer lassen oder eine sechs-/achtstellige Hex-Farbe verwenden.', error_locale: 'auto oder einen unterstützten Sprachcode verwenden.', error_zone: 'auto oder eine gültige IANA-Zeitzone verwenden.', error_object: 'Eine Zuordnung verwenden.', error_type: 'custom:info-dashboard verwenden.', error_version: 'Nur Schemaversion 1 wird unterstützt.',
 };
+export const TRANSLATIONS = Object.freeze({ en, de });
 export function translator(locale = 'en') {
   const dictionary = locale.toLowerCase().startsWith('de') ? de : en;
   return (key, values = {}) => (dictionary[key] ?? en[key] ?? key).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? `{${name}}`));

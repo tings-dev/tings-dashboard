@@ -31,16 +31,19 @@ function sourceHTML(event, t) {
   const outdated = event.outdated ? `<span class="outdated">${text(t('outdated'))}</span>` : '';
   return chips || outdated ? `<div class="source">${chips}${outdated}</div>` : '';
 }
-function eventTitle(event) { return `<h2 data-key="${text(`title:${event.key}`)}" tabindex="0" title="${text(event.title)}">${text(event.title)}</h2>`; }
+function titleButton(event, label = event.title) {
+  return `<button type="button" class="event-title" data-key="${text(`title:${event.key}:${label}`)}" data-full-title="${text(event.title)}" title="${text(event.title)}">${text(label)}</button>`;
+}
+function eventTitle(event) { return `<h2>${titleButton(event)}</h2>`; }
 function calendarHTML(calendar, t) {
   const c = calendar ?? EMPTY_PRESENTATION.calendar;
   const focus = c.state === 'ready' && ['soon', 'ongoing'].includes(c.mode) && c.focus;
   const heading = `<div class="calendar-heading" tabindex="-1"><span>${text(t(focus && c.mode === 'ongoing' ? 'today' : 'coming_up'))}</span><small>${text(c.sourceLabel ?? '')}</small></div>`;
-  const allDay = c.allDay?.length ? `<div class="all-day"><span class="all-day-heading">${text(t('all_day'))}</span>${c.allDay.map(e => `<article class="all-day-entry"><div class="all-day-title" tabindex="0" title="${text(`${e.when} · ${e.title}`)}">${text(e.when)} · ${text(e.title)}</div>${sourceHTML(e, t)}</article>`).join('')}</div>` : '';
+  const allDay = c.allDay?.length ? `<div class="all-day"><span class="all-day-heading">${text(t('all_day'))}</span>${c.allDay.map(e => `<article class="all-day-entry"><div class="all-day-title">${titleButton(e, `${e.when} · ${e.title}`)}</div>${sourceHTML(e, t)}</article>`).join('')}</div>` : '';
   let body;
   if (focus) {
     const f = c.focus;
-    body = `${allDay}<article class="focus"><div class="badge">${text(t(c.mode))}</div>${eventTitle(f)}<div class="timing" title="${text(f.when)}">${text(f.when)}</div>${sourceHTML(f, t)}${c.next ? `<div class="next-event"><small title="${text(c.next.when)}">${text(c.next.when)}</small><span tabindex="0" title="${text(c.next.title)}">${text(c.next.title)}</span></div>` : ''}</article>`;
+    body = `${allDay}<article class="focus"><div class="badge">${text(t(c.mode))}</div>${eventTitle(f)}<div class="timing" title="${text(f.when)}">${text(f.when)}</div>${sourceHTML(f, t)}${c.next ? `<div class="next-event"><small title="${text(c.next.when)}">${text(c.next.when)}</small>${titleButton(c.next)}</div>` : ''}</article>`;
   } else if (!c.items?.length && !c.allDay?.length) {
     body = `<p class="notice">${text(t(c.state === 'ready' ? 'no_events' : c.state === 'loading' ? 'calendar_loading' : 'awaiting'))}</p>`;
   } else {

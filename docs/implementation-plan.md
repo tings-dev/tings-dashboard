@@ -1,6 +1,6 @@
 # Dashboard implementation plan
 
-Status: accepted in Q39. Stages 1–4 were explicitly requested and are implemented locally. Stage 5 remains pending and requires a separate request. See [stage-1 notes](stage-1.md), [stage-2 notes](stage-2.md), [stage-3 notes](stage-3.md), and [stage-4 notes](stage-4.md) for configuration, verification, and limitations.
+Status: accepted in Q39. Stages 1–4 were explicitly requested and are implemented locally. Stage 5 software audit and packaging were requested and are implemented locally; physical device acceptance remains pending. See [stage-1 notes](stage-1.md), [stage-2 notes](stage-2.md), [stage-3 notes](stage-3.md), [stage-4 notes](stage-4.md), and [stage-5 notes](stage-5.md) for configuration, verification, and limitations.
 
 Implement the [dashboard design](dashboard-design.md) one stage at a time when requested. Each stage should produce a usable, reviewable increment with its configuration controls and matching documentation. Do not postpone all configuration, error handling, or accessibility work until the end.
 
@@ -72,6 +72,8 @@ Acceptance:
 - Editing night settings does not erase day settings or entity selections.
 
 ## Stage 5 — Configuration audit, packaging, and device acceptance
+
+Software audit and release preparation completed locally: generated complete configuration reference, English/German key parity, touch/keyboard full-title access, editor language refresh, default text contrast checks, standalone minified bundle/checksum, HACS manifest and installation documentation. Physical HA/kiosk/readability acceptance remains open in the [device record](device-acceptance.md); no release or device deployment has occurred.
 
 Audit the complete editor and YAML contract, labels, localization, supported tuning ranges, touch/keyboard access, contrast, and reduced motion. Produce installation/configuration documentation and the chosen distribution artifact. Verify the packaging requirements against current official documentation during implementation.
 

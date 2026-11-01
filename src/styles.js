@@ -55,8 +55,12 @@ h2{font-size:var(--event-font);font-weight:400;letter-spacing:-.025em;line-heigh
 .calendar-notice{font-size:var(--source-font);color:var(--muted);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .calendar-actions{display:flex;gap:10px;margin-top:12px}.calendar-action{font:inherit;font-size:var(--label-font);min-height:48px;min-width:64px;padding:8px 14px;border:1px solid var(--divider);border-radius:6px;background:var(--rail);color:var(--text);cursor:pointer}
 .has-focus .calendar-heading{margin-bottom:12px}.has-focus .focus{padding-top:8px}.has-focus .badge{margin-bottom:12px}.has-focus .timing{margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.has-focus .source{margin-top:6px}
-.has-focus .next-event{margin-top:12px;padding-top:10px}.next-event small,.next-event>span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.next-event small{margin-bottom:4px}
+.has-focus .next-event{margin-top:12px;padding-top:10px}.next-event small,.next-event>.event-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.next-event small{margin-bottom:4px}
 .calendar.compact{padding-top:0}.compact .focus{padding-top:0}.compact .calendar-heading{margin-bottom:8px}.compact .badge{margin-bottom:6px}.compact .timing,.compact .source{margin-top:4px}.compact .next-event{margin-top:6px;padding-top:6px}.compact .calendar-actions{margin-top:6px}.compact .more{margin-top:4px}
+.event-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;width:100%;min-height:44px;border:0;padding:0;background:transparent;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;text-align:start;cursor:pointer;overflow-wrap:anywhere}
+.event-title:focus-visible{outline-offset:-2px}
+.event-details{max-width:min(640px,90vw);max-height:90dvh;overflow:auto;background:var(--background);color:var(--text);border:1px solid var(--divider);border-radius:10px;padding:24px;font-size:20px;line-height:1.5}
+.event-details::backdrop{background:#0009}.event-details h2{display:block;overflow:visible;font-size:24px}.event-details p{white-space:pre-wrap;overflow-wrap:anywhere}.event-details button{min-width:80px;min-height:48px;background:transparent;color:inherit;border:1px solid var(--divider);border-radius:6px;font:inherit;padding:8px 16px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :host(.motion) .screen{transition:background-color .18s,color .18s}
 :focus-visible{outline:2px solid var(--accent);outline-offset:4px}
