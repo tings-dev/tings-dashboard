@@ -14,7 +14,7 @@ npm run test:browser
 npm run package
 ```
 
-Browser checks need a Playwright Chromium installation (`npx playwright install chromium`) or `TINGS_DASHBOARD_CHROMIUM` pointing to a compatible executable. The release command creates `release/tings-dashboard.js` and `release/SHA256SUMS`. It is a minified, self-contained ES module with the card, editor, styles and translations, with no runtime imports, source map, development fixtures or preview bundle. The package version appears in its banner and `customElements.get('tings-dashboard').version`. Generated `dist/`, `release/` and screenshots are ignored by Git.
+Browser checks need a Playwright Chromium installation (`npx playwright install chromium`) or `TINGS_DASHBOARD_CHROMIUM` pointing to a compatible executable. The package command updates the tracked root `tings-dashboard.js` and creates an identical `release/tings-dashboard.js` plus `release/SHA256SUMS`. Include the root bundle whenever committing source or version changes; `npm run check` rejects a missing or stale bundle. It is a minified, self-contained ES module with the card, editor, styles and translations, with no runtime imports, source map, development fixtures or preview bundle. The package version appears in its banner and `customElements.get('tings-dashboard').version`. Development `dist/`, release copies and screenshots are ignored by Git. The root production bundle is intentionally versioned for HACS branch installation.
 
 `npm run build` instead produces development bundles and source maps in `dist/`; `npm run preview` serves synthetic examples on localhost. Do not distribute `preview.js`.
 
@@ -41,15 +41,21 @@ After changing YAML resources, reload them using `lovelace.reload_resources`, th
 
 Home Assistant's [resource registration documentation](https://contributors.home-assistant.io/frontend/custom-ui/resources/) describes the `www` → `/local/` mapping and module registration. Files served from `www` are public to anyone who can reach HA; keep credentials and household configuration out of that directory.
 
-## HACS release preparation
+## HACS installation and releases
 
-The repository includes `hacs.json` with `filename: tings-dashboard.js` and `hide_default_branch: true`. The filename matches the GitHub repository name (`tings-dashboard`). This is a **release-only** distribution: source branches do not contain a built bundle, and `dist/preview.js` must never be picked up as a plugin asset.
+The repository includes `hacs.json` with `filename: tings-dashboard.js` and `content_in_root: true`. HACS finds the tracked production `tings-dashboard.js` at the repository root, including on `develop` before any release exists. The filename matches the GitHub repository name (`tings-dashboard`). Root content selection excludes development `dist/preview.js`; do not add other root JavaScript files.
 
-When a release is separately authorized, verify the checks above, ensure the package version matches the chosen release tag, and attach **only `release/tings-dashboard.js` and `release/SHA256SUMS`** to that GitHub release. HACS needs a public GitHub repository, a description/topics/README and a published release with its JavaScript asset. Publishing a tag alone is insufficient. Do not commit development `dist/` files into the release tree. No tag or release has been created or published here.
+Once these files are committed and pushed to GitHub, add `https://github.com/tings-dev/tings-dashboard` as a HACS custom repository of type **Dashboard**, download it, and verify the JavaScript module resource `/hacsfiles/tings-dashboard/tings-dashboard.js`. HACS can use the default branch when there is no release. Avoid registering both the manual and HACS copy. Actual installation inside HA remains unverified locally.
 
-After a release exists and the repository is public, users can add `https://github.com/tings-dev/tings-dashboard` as a HACS custom repository of type **Dashboard**, download the release, and verify its JavaScript module resource. The expected resource URL is `/hacsfiles/tings-dashboard/tings-dashboard.js`. Avoid registering both the manual and HACS copy. Actual HACS download and resource registration remain unverified until that release exists.
+A release is optional. When separately authorized, run the checks and package command, commit the updated root bundle with its source, and tag that commit with the matching package version. With root content enabled, HACS reads the bundle from the selected branch or tagged tree. You can also attach `release/tings-dashboard.js` and `release/SHA256SUMS` for manual downloads. No tag or release has been created or published here.
 
-The manifest and release layout follow the current [HACS general requirements](https://www.hacs.xyz/docs/publish/start/) and [dashboard plugin requirements](https://www.hacs.xyz/docs/publish/plugin/), checked on 2026-11-01. This preparation does not claim acceptance into the default HACS catalog.
+### Repository structure error
+
+`Repository structure for develop is not compliant` means HACS could not locate a suitable card file. Initially this repository only generated an ignored local release artifact, with no published release or tracked root/dist bundle. `hide_default_branch` cannot supply that missing artifact. The corrected root layout works without publishing a release first.
+
+Run `npm run package` and include **both the root `tings-dashboard.js` and the configuration/source changes** in the commit you push. Retry adding the custom repository after the corrected commit is on GitHub; an unpushed local build is invisible to HACS. A regression check compares the repository bundle against a fresh production build to catch missing/stale artifacts.
+
+The layout follows the [HACS general requirements](https://www.hacs.xyz/docs/publish/start/) and [dashboard plugin requirements](https://www.hacs.xyz/docs/publish/plugin/). The missing-file error was reproduced and the root-bundle layout verified with the current upstream [plugin validation methods](https://github.com/hacs/integration/blob/main/custom_components/hacs/repositories/plugin.py) on 2026-11-01. This is not a claim of acceptance into the default HACS catalog.
 
 ## Start a configuration
 

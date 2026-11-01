@@ -48,7 +48,8 @@ export async function checkAudit(page, bounds, settle) {
     assert.deepEqual(await bounds(), [], `audited ${theme} layout`);
   }
   // Exercise the actual minified distribution, independently of preview code.
-  const bundle = await readFile('release/tings-dashboard.js');
+  const bundle = await readFile('tings-dashboard.js');
+  assert.deepEqual(await readFile('release/tings-dashboard.js'), bundle, 'HACS branch and release copies must match');
   assert.equal((await readFile('release/SHA256SUMS', 'utf8')).trim(), `${createHash('sha256').update(bundle).digest('hex')}  tings-dashboard.js`);
   // A fresh page without the development imports loads only the release file.
   assert.equal(bundle.toString().includes('sourceMappingURL'), false);
@@ -58,7 +59,7 @@ export async function checkAudit(page, bounds, settle) {
   try {
     await releasePage.route('**/release-test', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body></body></html>' }));
     await releasePage.goto(new URL('/release-test', page.url()).href);
-    await releasePage.evaluate(async () => { await import('/release/tings-dashboard.js'); });
+    await releasePage.evaluate(async () => { await import('/tings-dashboard.js'); });
     const { version } = JSON.parse(await readFile('package.json', 'utf8'));
     assert.deepEqual(await releasePage.evaluate(() => {
       const ctor = customElements.get('tings-dashboard');

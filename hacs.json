@@ -1,5 +1,5 @@
 {
   "name": "Tings Dashboard",
   "filename": "tings-dashboard.js",
-  "hide_default_branch": true
+  "content_in_root": true
 }

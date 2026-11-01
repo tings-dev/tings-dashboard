@@ -73,7 +73,7 @@ Acceptance:
 
 ## Stage 5 — Configuration audit, packaging, and device acceptance
 
-Software audit and release preparation completed locally: generated complete configuration reference, English/German key parity, touch/keyboard full-title access, editor language refresh, default text contrast checks, standalone minified bundle/checksum, HACS manifest and installation documentation. Physical HA/kiosk/readability acceptance remains open in the [device record](device-acceptance.md); no release or device deployment has occurred.
+Software audit and release preparation completed locally: generated complete configuration reference, English/German key parity, touch/keyboard full-title access, editor language refresh, default text contrast checks, tracked root production bundle for HACS branch installation, release copy/checksum, HACS manifest and installation documentation. Physical HA/kiosk/readability acceptance remains open in the [device record](device-acceptance.md); no release or device deployment has occurred.
 
 Audit the complete editor and YAML contract, labels, localization, supported tuning ranges, touch/keyboard access, contrast, and reduced motion. Produce installation/configuration documentation and the chosen distribution artifact. Verify the packaging requirements against current official documentation during implementation.
 

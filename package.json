@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node scripts/check.mjs && node scripts/config-reference.mjs --check",
+    "check": "node scripts/check.mjs && node scripts/config-reference.mjs --check && node --test tests/distribution.test.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:browser": "node scripts/browser-check.mjs",
     "preview": "node scripts/serve.mjs",

@@ -9,7 +9,7 @@ npm run preview
 
 Open <http://127.0.0.1:8765>. This development preview uses the actual card bundle with mock Home Assistant sensor, weather, and calendar responses, an optional live clock, and visual-editor/YAML round trips. Build the standalone card with `npm run build`; the output is `dist/tings-dashboard.js`.
 
-For installation and distribution, see [installation](docs/installation.md). The [complete configuration reference](docs/configuration.md) is generated from the shared editor/YAML schema. `npm run package` creates the standalone `release/tings-dashboard.js` bundle and SHA-256 checksum. Release publishing and household migration are separate actions.
+For installation and distribution, see [installation](docs/installation.md). The [complete configuration reference](docs/configuration.md) is generated from the shared editor/YAML schema. `npm run package` updates the tracked root `tings-dashboard.js` for HACS branch installs and creates an identical release copy and SHA-256 checksum. Include the root bundle when committing source changes; `npm run check` catches drift. Release publishing and household migration are separate actions.
 
 See [calendar configuration and Done/Undo](docs/stage-3.md), [sensor, CO₂, and weather configuration](docs/stage-2.md) and [clock/layout configuration](docs/stage-1.md). Run `npm run check`, `npm test`, and `npm run test:browser`; browser checks require a Playwright Chromium installation or `TINGS_DASHBOARD_CHROMIUM` pointing to a compatible binary.
 

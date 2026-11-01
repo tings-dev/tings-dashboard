@@ -10,7 +10,7 @@ export async function startServer(port = 8765) {
       const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
       const relative = pathname === '/' ? 'preview/index.html' : pathname.slice(1);
       // Serve only the demo/artifact trees; never dotfiles or parent paths.
-      if (!/^(preview|dist|prototypes|release)\//.test(relative) || relative.split('/').some(part => part.startsWith('.'))) throw new Error('Not found');
+      if ((relative !== 'tings-dashboard.js' && !/^(preview|dist|prototypes|release)\//.test(relative)) || relative.split('/').some(part => part.startsWith('.'))) throw new Error('Not found');
       const path = resolve(root, relative);
       if (!path.startsWith(root + (root.endsWith(sep) ? '' : sep)) || !(await stat(path)).isFile()) throw new Error('Not found');
       res.writeHead(200, { 'Content-Type': mime[extname(path)] ?? 'application/octet-stream', 'Cache-Control': 'no-store' }); res.end(await readFile(path));
