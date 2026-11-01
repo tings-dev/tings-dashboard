@@ -1,4 +1,5 @@
 import { FIELDS, createInstanceId, configFields, FEATURES, getPath, setPath, normalizeConfig } from './config.js';
+import { nightControlProblem } from './night.js';
 import { translator, configErrorText } from './i18n.js';
 const STYLES = `
 :host{display:block;color:var(--primary-text-color,#222);font:14px Arial,Helvetica,sans-serif;--field-bg:var(--card-background-color,#fff)}
@@ -26,7 +27,7 @@ export class InfoDashboardEditor extends HTMLElement {
     this._hass = value;
     const language = this._language();
     if (this._languageRendered !== language) this._render();
-    else this._suggestions();
+    else { this._suggestions(); this._nightStatus(); }
   }
   _language() { return this._draft?.language === 'auto' ? this._hass?.locale?.language ?? this._hass?.language ?? 'en' : this._draft?.language ?? 'en'; }
   _render() {
@@ -36,7 +37,7 @@ export class InfoDashboardEditor extends HTMLElement {
     const style = document.createElement('style'); style.textContent = STYLES; this.shadowRoot.append(style);
     const notice = document.createElement('p'); notice.className = 'notice'; notice.textContent = this._t('stage_notice'); this.shadowRoot.append(notice);
     const error = document.createElement('p'); error.id = 'draft-error'; error.className = 'error'; error.setAttribute('role', 'alert'); this.shadowRoot.append(error);
-    for (const group of ['content', 'clock', 'readings', 'co2', 'thresholds', 'weather', 'calendar_settings', 'calendar_sources', 'visibility', 'appearance', 'layout', 'colors', 'night_colors']) {
+    for (const group of ['content', 'clock', 'readings', 'co2', 'thresholds', 'weather', 'calendar_settings', 'calendar_sources', 'night_control', 'visibility', 'appearance', 'layout', 'colors', 'night_colors']) {
       const section = document.createElement('fieldset'); const legend = document.createElement('legend'); legend.textContent = this._t(group); section.append(legend);
       if (['readings', 'thresholds', 'calendar_sources'].includes(group)) this._list(section, { readings: 'readings', thresholds: 'co2.thresholds', calendar_sources: 'calendar.sources' }[group]);
       else if (group === 'visibility') this._visibility(section);
@@ -45,9 +46,12 @@ export class InfoDashboardEditor extends HTMLElement {
         for (const field of FIELDS.filter(f => f.group === group)) grid.append(this._field(field));
         section.append(grid);
       }
+      if (group === 'night_control') {
+        const status = document.createElement('p'); status.id = 'night-status'; status.className = 'notice'; status.setAttribute('role', 'status'); section.append(status);
+      }
       this.shadowRoot.append(section);
     }
-    this._suggestions(); this._showError();
+    this._suggestions(); this._showError(); this._nightStatus();
   }
   _field(field) {
     const wrapper = document.createElement('div');
@@ -70,10 +74,10 @@ export class InfoDashboardEditor extends HTMLElement {
     const control = document.createElement(field.kind === 'select' ? 'select' : 'input');
     control.dataset.path = field.path; control.id = `field-${field.path}`;
     if (field.kind === 'select') {
-      for (const choice of field.options) { const option = document.createElement('option'); option.value = choice; option.textContent = this._t(choice === 'night' ? 'night_preset' : choice); control.append(option); }
+      for (const choice of field.options) { const option = document.createElement('option'); option.value = choice; option.textContent = this._t(field.path === 'night.mode' && choice === 'entity' ? 'night_entity_mode' : choice === 'night' ? 'night_preset' : choice); control.append(option); }
     } else if (field.kind === 'boolean') control.type = 'checkbox';
     else if (['number', 'integer'].includes(field.kind)) { control.type = 'number'; control.min = field.min; control.max = field.max; control.step = 'any'; }
-    else control.type = 'text';
+    else control.type = field.kind === 'time' ? 'time' : 'text';
     if (field.kind === 'entity') { control.setAttribute('list', `entities-${field.domain}`); control.autocomplete = 'off'; control.spellcheck = false; }
     const value = getPath(this._draft, field.path);
     if (field.kind === 'boolean') control.checked = value;
@@ -81,11 +85,11 @@ export class InfoDashboardEditor extends HTMLElement {
     return control;
   }
   _suggestions() {
-    for (const domain of ['sensor', 'weather', 'calendar']) {
+    for (const domain of ['sensor', 'weather', 'calendar', 'any']) {
       let list = this.shadowRoot.getElementById(`entities-${domain}`);
       if (!list) { list = document.createElement('datalist'); list.id = `entities-${domain}`; this.shadowRoot.append(list); }
       list.replaceChildren();
-      for (const entity of Object.values(this._hass?.states ?? {}).filter(e => e.entity_id?.startsWith(`${domain}.`)).sort((a, b) => a.entity_id.localeCompare(b.entity_id))) {
+      for (const entity of Object.values(this._hass?.states ?? {}).filter(e => domain === 'any' ? ['on', 'off', 'unknown', 'unavailable'].includes(e.state) : e.entity_id?.startsWith(`${domain}.`)).sort((a, b) => a.entity_id.localeCompare(b.entity_id))) {
         const option = document.createElement('option'); option.value = entity.entity_id; option.label = entity.attributes?.friendly_name ?? ''; list.append(option);
       }
     }
@@ -149,7 +153,13 @@ export class InfoDashboardEditor extends HTMLElement {
         this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: structuredClone(candidate) }, bubbles: true, composed: true }));
       }
     } catch (error) { this._error = error; }
-    this._showError();
+    this._showError(); this._nightStatus();
+  }
+  _nightStatus() {
+    const status = this.shadowRoot.getElementById('night-status');
+    if (!status || !this._config) return;
+    const problem = nightControlProblem(this._config, this._hass);
+    status.textContent = problem ? this._t(problem) : '';
   }
   _showError() {
     if (!this._t) return;

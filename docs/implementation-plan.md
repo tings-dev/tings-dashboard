@@ -1,6 +1,6 @@
 # Dashboard implementation plan
 
-Status: accepted in Q39. Stages 1–3 were explicitly requested and are implemented locally. Stages 4–5 remain pending and require separate requests. See [stage-1 notes](stage-1.md), [stage-2 notes](stage-2.md), and [stage-3 notes](stage-3.md) for configuration, verification, and limitations.
+Status: accepted in Q39. Stages 1–4 were explicitly requested and are implemented locally. Stage 5 remains pending and requires a separate request. See [stage-1 notes](stage-1.md), [stage-2 notes](stage-2.md), [stage-3 notes](stage-3.md), and [stage-4 notes](stage-4.md) for configuration, verification, and limitations.
 
 Implement the [dashboard design](dashboard-design.md) one stage at a time when requested. Each stage should produce a usable, reviewable increment with its configuration controls and matching documentation. Do not postpone all configuration, error handling, or accessibility work until the end.
 
@@ -57,6 +57,8 @@ Acceptance:
 - Requests, timers, and subscriptions are cleaned up when the card is removed; obsolete responses cannot overwrite newer selections.
 
 ## Stage 4 — Live night activation
+
+Completed locally: HA-timezone schedules, on/off entity activation with scoped last-known persistence, unavailable-control editor diagnostics, preview controls, and focused rule/browser checks. See stage-4 notes for configuration and limitations. Actual Home Assistant and device acceptance remain unverified.
 
 Connect the approved visibility/appearance rendering to either a schedule or an on/off entity. Persist last known entity-controlled mode per dashboard instance. Apply the accepted initial night preset while preserving user overrides and daytime settings.
 

@@ -3,7 +3,11 @@ import { normalizeConfig, FEATURES } from '../src/config.js';
 import { calendarSources, mockCalendarEvents, readingSources, mockStates } from './fixtures.js';
 import { parse, stringify } from 'yaml';
 class PreviewDashboard extends InfoDashboard {
-  currentTime() { return document.getElementById('live').checked ? new Date() : new Date(this.night ? '2026-11-01T22:18:00Z' : '2026-11-01T13:42:00Z'); }
+  currentTime() {
+    const fixed = new Date(document.getElementById('fixed-time')?.value ?? '');
+    if (Number.isFinite(fixed.getTime())) return fixed;
+    return document.getElementById('live').checked ? new Date() : new Date(document.getElementById('appearance').value === 'night' ? '2026-11-01T22:18:00Z' : '2026-11-01T13:42:00Z');
+  }
 }
 customElements.define('info-dashboard-preview', PreviewDashboard);
 const $ = id => document.getElementById(id);
@@ -46,6 +50,7 @@ function resize() {
 function updateData() {
   hass.connected = $('source-state').value !== 'offline';
   hass.states = $('source-state').value === 'missing' ? {} : mockStates($('scenario').value === 'unavailable', $('co2-demo').value);
+  hass.states['input_boolean.preview_night'] = { entity_id: 'input_boolean.preview_night', state: $('night-state').value, attributes: { friendly_name: 'Preview night control' } };
   card.hass = { ...hass }; editor.hass = hass; publishForecast();
   card._calendar.refreshNow();
   $('status').textContent = `Synthetic ${$('scenario').value}; ${$('appearance').value}; ${$('viewport').value}; live clock: ${$('live').checked}`;
@@ -55,7 +60,7 @@ $('apply').onclick = () => { try { commit(parse($('yaml').value)); } catch (erro
 $('preset').onchange = preset;
 $('appearance').onchange = () => { const next = structuredClone(config); if ($('appearance').value !== 'night') next.appearance.day = $('appearance').value; commit(next); card.night = $('appearance').value === 'night'; updateData(); };
 $('viewport').onchange = resize;
-for (const name of ['scenario', 'live', 'source-state']) $(name).onchange = updateData;
+for (const name of ['scenario', 'live', 'source-state', 'night-state', 'fixed-time']) $(name).onchange = updateData;
 $('co2-demo').oninput = updateData;
 $('readings').onchange = () => { const next = structuredClone(config); next.readings = readingSources.slice(0, Number($('readings').value)); commit(next); updateData(); };
 $('unavailable').onclick = () => { hass.states = {}; card.hass = { ...hass }; editor.hass = hass; card.presentation = null; $('status').textContent = 'No mock entities: readings are unavailable and cached calendar entries are outdated.'; };

@@ -1,5 +1,6 @@
 import { CalendarSource } from './calendar-source.js';
 import { calendarPresentation } from './calendar-model.js';
+import { NightControl } from './night.js';
 import { Dismissals } from './dismissals.js';
 import { environmentPresentation } from './environment.js';
 import { ForecastSource } from './forecast.js';
@@ -19,7 +20,15 @@ export class InfoDashboard extends HTMLElement {
     this._forecast = new ForecastSource(() => this._refreshData());
     this._calendar = new CalendarSource(() => this._refreshData(), () => this.currentTime().getTime());
     this._dismissals = new Dismissals();
-    this._onStorage = event => { if (event.key === this._dismissals.key || event.key === null) { this._dismissals.reload(this.currentTime().getTime()); this._refreshData(); } };
+    this._nightControl = new NightControl();
+    this._onStorage = event => {
+      if (event.key === this._dismissals.key || event.key === null) {
+        this._dismissals.reload(this.currentTime().getTime()); this._refreshData();
+      }
+      if (event.key === this._nightControl.key || event.key === null) {
+        this._nightControl.reload(); this._applyNight(); this._syncSources(); this._render();
+      }
+    };
     this._night = false;
     this._resize = new ResizeObserver(() => this._layout());
     this._onVisibility = () => this._startClock();
@@ -40,24 +49,28 @@ export class InfoDashboard extends HTMLElement {
       throw new Error(configErrorText(error, translator(this._preferences?.locale)), { cause: error });
     }
     this._config = next;
+    this._applyNight();
     this._dismissals.setScope(next.instance_id, this.currentTime().getTime());
     this.style.height = `var(--info-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--header-height, 0px))' : `${next.layout.height}px`})`;
     this.classList.toggle('motion', next.motion);
     this._syncSources(); this._render();
+    if (this.isConnected) this._startClock();
   }
   set hass(value) {
     this._hass = value;
     if (!this._config) return;
     const next = resolveClockPreferences(this._config, value);
+    const nightChanged = this._applyNight();
     this._syncSources();
-    if (JSON.stringify(next) !== JSON.stringify(this._preferences)) this._render();
+    if (nightChanged || JSON.stringify(next) !== JSON.stringify(this._preferences)) this._render();
     else this._refreshData();
   }
   get hass() { return this._hass; }
-  // Adapter-facing state, not persisted configuration. Stage 4 will supply night.
+  // Explicit preview/adapter state when automatic activation is off.
   set night(value) {
     if (typeof value !== 'boolean') throw new TypeError('night must be boolean');
-    if (value === this._night) return;
+    this._manualNight = value;
+    if (this._config?.night.mode !== 'off' || value === this._night) return;
     this._night = value; this._syncSources(); this._render();
   }
   get night() { return this._night; }
@@ -71,7 +84,8 @@ export class InfoDashboard extends HTMLElement {
     document.addEventListener('visibilitychange', this._onVisibility);
     window.addEventListener('storage', this._onStorage);
     if (!this._config) this.setConfig({});
-    this._syncSources(); this._startClock();
+    this._nightControl.reload(); this._applyNight();
+    this._syncSources(); this._render(); this._startClock();
   }
   disconnectedCallback() {
     this._forecast.stop(); this._calendar.stop();
@@ -85,7 +99,13 @@ export class InfoDashboard extends HTMLElement {
     clearTimeout(this._timer); this._timer = undefined;
     if (!this.isConnected) return;
     this._tick();
-    if (!document.hidden) this._timer = setTimeout(() => this._startClock(), 1000 - Date.now() % 1000);
+    if (!document.hidden || this._config?.night.mode === 'schedule') this._timer = setTimeout(() => this._startClock(), document.hidden ? 30000 : 1000 - Date.now() % 1000);
+  }
+  _applyNight() {
+    if (!this._config) return false;
+    const next = this._config.night.mode === 'off' ? this._manualNight ?? false : this._nightControl.resolve(this._config, this._hass, this.currentTime());
+    if (next === this._night) return false;
+    this._night = next; return true;
   }
   _syncSources() {
     if (!this._config) return;
@@ -137,6 +157,7 @@ export class InfoDashboard extends HTMLElement {
   }
   _tick() {
     if (!this._format) return;
+    if (this._applyNight()) { this._syncSources(); this._render(); return; }
     if (this.isConnected) this._calendar.ensureFresh();
     const now = this.currentTime();
     const value = this._format(now);

@@ -14,6 +14,10 @@ export const DEFAULT_THRESHOLDS = [
   { value: 1800, color: '#c96964', label: 'Very high' },
 ];
 export const FIELDS = [
+  field('night.mode', 'select', 'off', 'night_control', { options: ['off', 'schedule', 'entity'] }),
+  field('night.entity', 'entity', '', 'night_control', { domain: 'any', label: 'night.entity' }),
+  field('night.start', 'time', '22:00', 'night_control'),
+  field('night.end', 'time', '07:00', 'night_control'),
   field('instance_id', 'instance', '', 'calendar_settings'),
   field('calendar.lookahead_days', 'integer', 7, 'calendar_settings', { min: 1, max: 31 }),
   field('calendar.max_entries', 'integer', 6, 'calendar_settings', { min: 1, max: 30 }),
@@ -73,10 +77,11 @@ export class ConfigError extends Error {
 export function validateField(field, value) {
   const bad = (code, args) => { throw new ConfigError(field.path, code, args); };
   switch (field.kind) {
+    case 'time': if (typeof value !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) bad('time'); break;
     case 'instance': if (typeof value !== 'string' || (value !== '' && !/^[a-zA-Z0-9_-]{1,100}$/.test(value))) bad('instance'); break;
     case 'optional_color': if (typeof value !== 'string' || (value !== '' && !/^#[\da-f]{6}$/i.test(value))) bad('optional_color'); break;
     case 'integer': if (!Number.isInteger(value) || value < field.min || value > field.max) bad('integer', field); break;
-    case 'entity': if (typeof value !== 'string' || (value !== '' && !new RegExp(`^${field.domain}\\.[a-z0-9_]+$`).test(value))) bad('entity', { domain: field.domain }); break;
+    case 'entity': if (typeof value !== 'string' || (value !== '' && !new RegExp(`^${field.domain === 'any' ? '[a-z_][a-z0-9_]*' : field.domain}\\.[a-z0-9_]+$`).test(value))) bad(field.domain === 'any' ? 'control_entity' : 'entity', { domain: field.domain }); break;
     case 'precision': if (value !== 'auto' && !(Number.isInteger(value) && value >= 0 && value <= 6)) bad('precision'); break;
     case 'band_color': if (typeof value !== 'string' || !/^#[\da-f]{6}$/i.test(value)) bad('band_color'); break;
     case 'boolean': if (typeof value !== 'boolean') bad('boolean'); break;
@@ -95,7 +100,7 @@ export function normalizeConfig(input) {
   if (!plain(input)) throw new ConfigError('config', 'object');
   if (input.type !== undefined && input.type !== CARD_TYPE) throw new ConfigError('type', 'type');
   if (input.schema_version !== undefined && input.schema_version !== 1) throw new ConfigError('schema_version', 'version');
-  for (const path of ['calendar', 'co2', 'weather', 'appearance', 'appearance.colors', 'appearance.night_colors', 'layout', 'features', ...FEATURES.map(f => `features.${f}`)]) {
+  for (const path of ['night', 'calendar', 'co2', 'weather', 'appearance', 'appearance.colors', 'appearance.night_colors', 'layout', 'features', ...FEATURES.map(f => `features.${f}`)]) {
     const value = getPath(input, path);
     if (value !== undefined && !plain(value)) throw new ConfigError(path, 'object');
   }
@@ -122,6 +127,8 @@ export function normalizeConfig(input) {
   result.co2.thresholds.forEach((band, index, bands) => {
     if (index && band.value <= bands[index - 1].value) throw new ConfigError(`co2.thresholds.${index}.value`, 'threshold_order');
   });
+  if (result.night.start === result.night.end) throw new ConfigError('night.end', 'night_interval');
+  if (result.night.mode === 'entity' && !result.instance_id) throw new ConfigError('instance_id', 'night_instance_required');
   const entities = new Set();
   result.calendar.sources.forEach((source, index) => {
     if (source.entity && entities.has(source.entity)) throw new ConfigError(`calendar.sources.${index}.entity`, 'duplicate_calendar');

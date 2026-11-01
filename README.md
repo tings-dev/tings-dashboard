@@ -1,6 +1,6 @@
 # Info Dashboard
 
-Stages 1–3 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light/night appearance, and a visual editor sharing validation with YAML. Automatic night activation and device acceptance are the next stages.
+Stages 1–4 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light/night appearance, and a visual editor sharing validation with YAML. Automatic night activation supports HA-timezone schedules and persistent on/off entity control. Packaging and device acceptance remain stage 5. See [stage 4 configuration and verification](docs/stage-4.md).
 
 ```sh
 npm ci

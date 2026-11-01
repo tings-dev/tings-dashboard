@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { checkNight } from './night-browser-check.mjs';
 import { checkCalendars } from './calendar-browser-check.mjs';
 import { checkEnvironment } from './environment-browser-check.mjs';
 import { startServer } from './serve.mjs';
@@ -121,6 +122,7 @@ try {
   assert.equal((await readFile('dist/info-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
   await checkEnvironment(page, bounds, settle);
   await checkCalendars(page, bounds, settle);
+  await checkNight(page, bounds, settle);
   assert.deepEqual(errors, []);
   console.log(`Browser checks passed: ${layouts} theme/layout combinations, focus stability, tuning extremes, editor/YAML drafts, injection, locale, and lifecycle.`);
 } finally {
