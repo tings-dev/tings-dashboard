@@ -1,0 +1,91 @@
+<!doctype html>
+<!-- Throwaway study: three room-dashboard compositions, ?variant=A/B/C.
+     Synthetic data only. No service connections, persistence, or production build. -->
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room dashboard · layout studies</title>
+<style>
+*{box-sizing:border-box} :root{font-family:Arial,Helvetica,sans-serif;color:#eeeae3;background:#202323;color-scheme:dark}
+body{margin:0;padding:28px 32px 105px}button,select,input{font:inherit}button,select{background:#303636;color:#f3f0ea;border:1px solid #555e5b;border-radius:8px;padding:8px 12px}button{cursor:pointer}button:hover{background:#46514c}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #bfd8b9;outline-offset:4px}
+.studio{max-width:1280px;margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:#b5c2b5}.studio h1{font-size:25px;font-weight:500;margin:9px 0}.intro{font-size:14px;color:#b6bcb8;line-height:1.6;margin:0 0 20px}.controls{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:22px}.controls label{font-size:12px;color:#ccd2cd;display:flex;gap:8px;align-items:center}input[type=range]{width:150px;accent-color:#d7c7a7}.controls output{min-width:65px;font-variant-numeric:tabular-nums}.frame{position:relative;margin:0 auto;background:#121716;box-shadow:0 22px 70px #0005;border-radius:14px;overflow:hidden}.screen{position:absolute;width:1280px;height:800px;transform-origin:top left;background:#111817;color:#f4f0e8;overflow:hidden;--air:#d9b36f;--fill:42%;--rail:88px}.screen:after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px #0002}.muted{color:#adb7ae}.kicker{font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:#afbbb1;font-weight:400}.clock{font-size:192px;line-height:1;font-weight:400;letter-spacing:-.075em;font-variant-numeric:tabular-nums;margin-left:-9px}.date{font-size:23px;color:#b5c0b6;margin-top:21px}.room{display:flex;align-items:center;gap:12px}.room:before{content:"";width:7px;height:7px;border-radius:50%;background:#b0c6ac}.readings{display:flex;gap:43px}.reading strong{display:block;font-size:47px;font-weight:400;letter-spacing:-.035em}.reading span{display:block;font-size:16px;color:#aebbb2;margin-top:10px}.reading small{font-size:18px;color:#b2bdb4;letter-spacing:0}.weather{font-size:17px;color:#aebbb2;margin-top:22px;display:flex;gap:9px;align-items:center}.weather svg{width:25px;height:25px;stroke:#c1cec3;fill:none;stroke-width:1.6}.agenda-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.agenda-title small{color:#85988b;font-size:15px}.event{padding:22px 0;border-top:1px solid #ffffff18}.event .when{font-size:19px;color:#b9c8bd;margin-bottom:12px}.event h2{font-size:30px;line-height:1.2;font-weight:400;letter-spacing:-.025em;margin:0;overflow-wrap:anywhere}.source{font-size:15px;color:#8d9e91;margin-top:12px;display:flex;align-items:center;gap:8px}.source:before{content:"";height:5px;width:5px;background:currentColor;border-radius:50%}.source.family{color:#c8b88d}.focus .badge{font-size:16px;text-transform:uppercase;letter-spacing:.12em;color:#e2c38e;margin-bottom:24px}.focus h2{font-size:46px;font-weight:400;line-height:1.12;letter-spacing:-.035em;overflow-wrap:anywhere;margin:0 0 20px}.focus .timing{font-size:23px;color:#b8c7bd}.focus .source{margin-top:18px}.focus .next{border-top:1px solid #ffffff20;margin-top:38px;padding-top:22px;color:#acb9af;font-size:17px;line-height:1.6}.progress{height:3px;margin:28px 0 18px;background:#ffffff15}.progress i{display:block;height:100%;width:36%;background:#d6c298}.progress-caption{color:#b8c7bd;font-size:17px}.air{position:absolute;top:0;right:0;bottom:0;width:var(--rail);background:#ffffff06;border-left:1px solid #ffffff0b;z-index:1}.air-fill{position:absolute;bottom:0;width:100%;height:var(--fill);background:var(--air);opacity:.82}.air-fill:before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:#fff5}.air-name{position:absolute;top:32px;left:0;width:100%;text-align:center;font-size:15px;letter-spacing:.1em;color:#ced6cf}.air-number{position:absolute;bottom:26px;left:0;width:100%;text-align:center;color:#111817}.air-number b{display:block;font-weight:500;font-size:24px}.air-number span{font-size:12px}.air-number.low{color:#dbe5dc}.air-status{position:absolute;right:calc(var(--rail) + 26px);bottom:30px;display:flex;align-items:center;gap:10px;font-size:16px;color:#b9c5bb}.air-status i{background:var(--air);width:8px;height:8px;border-radius:50%}.mark{position:absolute;right:0;width:12px;border-top:1px solid #ffffff45;z-index:2}.mark-label{position:absolute;right:16px;top:-7px;font-size:10px;color:#dae1d6;text-shadow:0 1px 4px #000}.a .left{position:absolute;top:49px;left:54px;width:570px;bottom:68px}.a .timeblock{position:absolute;top:186px;left:0}.a .readings{position:absolute;bottom:32px;left:0}.a .weather{position:absolute;bottom:0;left:0}.a .right{position:absolute;left:696px;top:99px;right:122px;bottom:90px}.a .right:before{content:"";position:absolute;left:-35px;top:0;bottom:0;width:1px;background:#ffffff0e}.a .focus{margin-top:68px}.a .event:last-child{padding-bottom:0}
+.b{background:#171c22;--rail:60px}.b .room{position:absolute;top:45px;left:50px}.b .timeblock{position:absolute;top:115px;left:48px}.b .clock{font-size:234px}.b .date{margin-top:10px}.b .conditions{position:absolute;right:115px;top:150px}.b .readings{flex-direction:column;gap:28px}.b .reading strong{font-size:46px}.b .reading span{margin-top:5px}.b .weather{font-size:15px}.b .schedule{position:absolute;left:50px;right:110px;top:505px}.b .agenda-title{margin-bottom:18px}.b .events{display:grid;grid-template-columns:repeat(3,1fr);gap:34px}.b .event{padding-top:25px}.b .event h2{font-size:27px}.b .focus{display:grid;grid-template-columns:1fr 1fr;column-gap:48px;position:relative;border-top:1px solid #ffffff20;padding-top:20px}.b .focus .badge{grid-column:1;margin-bottom:12px}.b .focus h2{grid-column:1;font-size:36px;margin-bottom:12px}.b .focus .timing{grid-column:1;font-size:20px}.b .focus .source{grid-column:1;margin-top:12px}.b .focus .next{position:absolute;left:56%;right:0;top:25px;margin:0;padding:0;border:0;font-size:20px}.b .focus .progress,.b .focus .progress-caption{display:none}.b .air-status{bottom:25px}.b .air-name{font-size:12px}.b .air-number b{font-size:19px}.b .mark-label{display:none}
+.c{background:#201e1b;--rail:144px}.c .left{position:absolute;top:45px;left:50px;bottom:58px;width:480px}.c .timeblock{position:absolute;top:150px}.c .clock{font-size:168px}.c .date{font-size:21px}.c .readings{position:absolute;bottom:43px;gap:35px}.c .reading strong{font-size:40px}.c .weather{position:absolute;bottom:0}.c .poster{position:absolute;left:586px;right:185px;top:135px;bottom:90px}.c .poster .agenda-title{margin-bottom:63px}.c .focus h2{font-size:62px;line-height:1.06;letter-spacing:-.035em}.c .focus .badge{color:#dbc39b}.c .focus .next{margin-top:38px}.c .air-fill{opacity:.75}.c .air-number b{font-size:32px}.c .air-name{top:45px}.c .air-status{bottom:30px}.c .mark{width:20px}.c .mark-label{right:27px}
+.notes{display:flex;justify-content:space-between;gap:24px;margin-top:19px;font-size:13px;color:#b8c1b9;line-height:1.6}.notes p{margin:0;max-width:730px}.notes .state{font-size:11px;max-width:350px;font-family:monospace;color:#92a195}.switcher{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;background:#eee9df;color:#232a24;padding:8px;border-radius:15px;box-shadow:0 8px 30px #0006;z-index:5;white-space:nowrap}.switcher button{background:transparent;border:0;color:#232a24;padding:8px 16px;font-size:22px}.switcher #variant-name{font-size:14px;min-width:175px;text-align:center}.switcher small{display:block;font-size:10px;color:#646c62;margin-bottom:3px;letter-spacing:.06em;text-transform:uppercase}
+@media(max-width:700px){body{padding:18px 14px 110px}.controls{gap:12px}.controls label{flex-wrap:wrap}.notes{flex-direction:column;gap:7px}.studio h1{font-size:22px}}
+</style>
+<main class="studio">
+  <div class="eyebrow">Room information · design exploration 01</div>
+  <h1>A clock first. A little context. Room to breathe.</h1>
+  <p class="intro">Three compositions for the same information. Synthetic data; controls below belong to this study, not the dashboard.</p>
+  <div class="controls">
+    <label>Event mode <select id="mode"><option value="agenda">Upcoming</option><option value="soon">Starting soon</option><option value="ongoing">In progress</option><option value="busy">Long title</option><option value="empty">No events</option></select></label>
+    <label>CO₂ <input id="co2" type="range" min="400" max="2000" step="10" value="1080"><output id="ppm">1080 ppm</output></label>
+    <label>Thresholds <select id="bands"><option value="2">2 thresholds · 3 colors</option><option value="4" selected>4 thresholds · 5 colors</option></select></label>
+    <label>Viewport <select id="size"><option value="1280,800">1280 × 800</option><option value="960,600">960 × 600</option><option value="800,480">800 × 480</option></select></label>
+  </div>
+  <div class="frame" id="frame"><section class="screen a" id="screen" aria-label="Dashboard design preview"></section></div>
+  <div class="notes"><p id="rationale"></p><p class="state" id="state"></p></div>
+  <p class="intro" style="font-size:12px;margin-top:14px">Example colors and thresholds explore appearance only. The preview scales to your browser; distance readability requires the actual device. Arrow keys switch layouts.</p>
+</main>
+<nav class="switcher" aria-label="Prototype layout switcher"><button id="previous" aria-label="Previous layout">←</button><div id="variant-name" aria-live="polite"></div><button id="next" aria-label="Next layout">→</button></nav>
+<script>
+const $=id=>document.getElementById(id);
+const variants=['A','B','C'];
+let variant=new URLSearchParams(location.search).get('variant')||'A';
+if(!variants.includes(variant))variant='A';
+const names={A:'Quiet split',B:'Open horizon',C:'Event poster'};
+const descriptions={A:'A · Fixed clock and agenda columns. The air column has its own space, so rising CO₂ never covers text. A steady everyday layout; long event titles are its main pressure point.',B:'B · A large clock above a three-event strip. More open space, with weather and temperatures collected at the side. Event focus replaces only the lower strip.',C:'C · An event gets the treatment of a poster. A broad air column is easy to notice; a smaller clock and fewer events pay for that emphasis.'};
+const weather=`<div class="weather"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17a4 4 0 0 1 0-8 6 6 0 0 1 11-1 4.5 4.5 0 0 1 0 9Z"/></svg>Cloudy · rain after 18:00</div>`;
+const readings=`<div class="readings"><div class="reading"><strong>21.4°<small>C</small></strong><span>In this room</span></div><div class="reading"><strong>12°<small>C</small></strong><span>Outside</span></div></div>`;
+const clock=`<div class="timeblock"><div class="clock">14:42</div><div class="date">Sunday, 1 November</div></div>`;
+const room=`<div class="room kicker">Living room</div>`;
+const events=[['15:30','Walk by the lake','Personal',''],['18:00','Dinner with friends','Family','family'],['Tomorrow · 09:00','Weekly planning','Work','']];
+function eventList(){return '<div class="events">'+events.map(e=>`<article class="event"><div class="when">${e[0]}</div><h2>${e[1]}</h2><div class="source ${e[3]}">${e[2]}</div></article>`).join('')+'</div>'}
+function focus(mode,poster=false){
+  const busy=mode==='busy', ongoing=mode==='ongoing';
+  const title=busy?'Planning the winter weekend with friends':mode==='agenda'?'Walk by the lake':'Dinner with friends';
+  const badge=ongoing?'In progress':mode==='agenda'?'Next up · today':'Starting soon';
+  const timing=ongoing?'14:15–15:30':mode==='agenda'?'15:30 · in 48 minutes':'15:00 · in 18 minutes';
+  return `<article class="focus"><div class="badge">${badge}</div><h2>${title}</h2><div class="timing">${timing}</div><div class="source ${mode==='agenda'?'':'family'}">${mode==='agenda'?'Personal':'Family'}</div>${ongoing?'<div class="progress"><i></i></div><div class="progress-caption">Ends in 48 minutes</div>':''}<div class="next">${poster?'Later':'Next'} · ${mode==='agenda'?'18:00':'18:30'}<br>${mode==='agenda'?'Dinner with friends':'Call with Alex'}</div></article>`;
+}
+function schedule(mode,poster=false){
+ const header=`<div class="agenda-title"><div class="kicker">${poster?'Your day':'Coming up'}</div><small>${mode==='agenda'?'3 calendars':''}</small></div>`;
+ if(mode==='empty')return header+'<article class="focus"><h2>A little breathing room.</h2><div class="timing">No events today</div></article>';
+ return header+(mode==='agenda'&&!poster?eventList():focus(mode,poster));
+}
+function render(){
+ const mode=$('mode').value, co2=+$('co2').value, count=+$('bands').value;
+ const levels=count===4?[[400,'#8daea0','Low'],[800,'#c5c691','Raised'],[1000,'#d9b36f','Elevated'],[1400,'#db8d64','High'],[1800,'#c96964','Very high']]:[[400,'#8daea0','Low'],[1000,'#d9b36f','Elevated'],[1600,'#c96964','High']];
+ const level=levels.filter(l=>co2>=l[0]).at(-1);
+ const fill=(co2-400)/1600*100;
+ $('screen').className='screen '+variant.toLowerCase();
+ $('screen').style.setProperty('--air',level[1]);$('screen').style.setProperty('--fill',fill+'%');
+ const marks=levels.slice(1).map(l=>`<div class="mark" style="bottom:${(l[0]-400)/1600*100}%"><span class="mark-label">${l[0]}</span></div>`).join('');
+ const air=`<div class="air" aria-label="CO₂ ${co2} parts per million, ${level[2]}"><div class="air-fill"></div>${marks}<div class="air-name">CO₂</div><div class="air-number ${fill<13?'low':''}"><b>${co2.toLocaleString('en')}</b><span>ppm</span></div></div><div class="air-status"><i></i>CO₂ · ${level[2].toLowerCase()}</div>`;
+ if(variant==='A')$('screen').innerHTML=`<div class="left">${room}${clock}${readings}${weather}</div><div class="right">${schedule(mode)}</div>${air}`;
+ if(variant==='B')$('screen').innerHTML=`${room}${clock}<div class="conditions">${readings}${weather}</div><div class="schedule">${schedule(mode)}</div>${air}`;
+ if(variant==='C')$('screen').innerHTML=`<div class="left">${room}${clock}${readings}${weather}</div><div class="poster">${schedule(mode,true)}</div>${air}`;
+ $('ppm').textContent=co2+' ppm';
+ $('variant-name').innerHTML=`<small>Layout study ${variants.indexOf(variant)+1} / 3</small>${variant} · ${names[variant]}`;
+ $('rationale').textContent=descriptions[variant];
+ $('state').textContent=`${variant} / ${mode} / ${co2} ppm / ${count} thresholds / ${$('size').value.replace(',','×')} / range 400–2000 / synthetic data`;
+ fit();
+}
+function fit(){
+ const [w,h]=$('size').value.split(',').map(Number);
+ // Study composition stays consistent at different viewports; fonts scale too.
+ // This exposes the distance-readability cost, not a final responsive strategy.
+ const available=Math.min(document.querySelector('.studio').clientWidth,w);
+ const logicalHeight=1280*h/w;
+ $('screen').style.height=logicalHeight+'px';
+ $('frame').style.width=available+'px';$('frame').style.height=available*h/w+'px';
+ $('screen').style.transform=`scale(${available/1280})`;
+}
+function switchTo(delta){variant=variants[(variants.indexOf(variant)+delta+3)%3];const url=new URL(location);url.searchParams.set('variant',variant);history.replaceState(null,'',url);render()}
+$('previous').onclick=()=>switchTo(-1);$('next').onclick=()=>switchTo(1);
+document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea,[contenteditable]'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();switchTo(e.key==='ArrowLeft'?-1:1)}});
+for(const id of ['mode','co2','bands','size'])$(id).addEventListener('input',render);
+window.addEventListener('resize',fit);render();
+</script>
+</html>
