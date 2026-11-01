@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Info Dashboard · Stage 2 development preview</title>
+<title>Info Dashboard · Stage 3 development preview</title>
 <style>
 *{box-sizing:border-box}body{margin:0;padding:24px;background:#252c28;color:#edf0e8;font:14px Arial,Helvetica,sans-serif}h1{font-weight:400;font-size:26px}p{line-height:1.6}button,input,select,textarea{font:inherit}button,select{padding:9px;border:1px solid #788578;border-radius:6px;background:#354237;color:inherit}button{cursor:pointer}label{display:flex;gap:8px;align-items:center}.toolbar{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0}.preview-shell{overflow:hidden;position:relative;margin:auto;box-shadow:0 20px 60px #0004}.preview-shell>info-dashboard-preview{position:absolute;transform-origin:top left}.panels{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1280px;margin:24px auto}.panel{background:#f5f4ee;color:#273b34;padding:20px;border-radius:10px;min-width:0}textarea{width:100%;min-height:420px;padding:12px;resize:vertical;background:white;color:#222;border:1px solid #888;font:13px/1.5 monospace}#yaml-error{color:#a12020;min-height:24px;white-space:pre-wrap}#status{font:12px/1.5 monospace}a{color:#b6d4b4}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #69b7a4;outline-offset:3px}@media(max-width:800px){.panels{grid-template-columns:1fr}body{padding:14px}}
 </style>
-<h1>Info Dashboard · Stage 2</h1>
-<p>This preview runs the actual sensor, CO₂, and weather adapters against mock Home Assistant entities. Calendar events are layout fixtures; automatic night activation follows later.</p>
+<h1>Info Dashboard · Stage 3</h1>
+<p>This preview runs the actual sensor, weather, and calendar adapters against mock Home Assistant responses. Done/Undo persists in this browser. Automatic night activation follows later.</p>
 <div class="toolbar">
 <label>Example <select id="preset"><option value="full">Full dashboard</option><option value="no-calendar">No calendar</option><option value="no-co2">No CO₂</option><option value="clock">Clock only</option><option value="readings">Readings only</option><option value="calendar">Calendar only</option><option value="blank">All hidden</option></select></label>
 <label>Appearance <select id="appearance"><option value="dark">Dark</option><option value="light">Light</option><option value="night">Night state</option></select></label>
-<label>Scenario <select id="scenario"><option value="agenda">Agenda</option><option value="soon">Starting soon</option><option value="ongoing">In progress</option><option value="long">Long title</option><option value="empty">No events</option><option value="unavailable">Unavailable</option></select></label>
+<label>Scenario <select id="scenario"><option value="agenda">Agenda</option><option value="soon">Starting soon</option><option value="ongoing">In progress</option><option value="long">Long title</option><option value="empty">No events</option><option value="partial">One calendar failed</option><option value="duplicates">Duplicate event</option><option value="unavailable">Unavailable</option></select></label>
 <label>Viewport <select id="viewport"><option value="1280,800">1280 × 800</option><option value="960,600">960 × 600</option><option value="800,480">800 × 480</option></select></label>
 <label>Readings <select id="readings"><option>2</option><option>4</option></select></label>
 <label>Sources <select id="source-state"><option value="online">Online</option><option value="offline">Disconnected</option><option value="missing">Missing</option></select></label>

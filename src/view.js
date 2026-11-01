@@ -3,7 +3,7 @@ import { palette, visibleFeatures } from './config.js';
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const text = escapeHTML;
 export const EMPTY_PRESENTATION = Object.freeze({ readings: [], calendar: { state: 'unavailable', items: [] }, weather: null, co2: null });
-// Presentation values are formatted by adapters; only calendar fixtures remain development-only.
+// Adapters format source data; the view only lays out escaped presentation values.
 export function renderView(root, config, presentation, night, t) {
   const v = visibleFeatures(config, night);
   const data = { ...EMPTY_PRESENTATION, ...presentation };
@@ -26,35 +26,45 @@ export function renderView(root, config, presentation, night, t) {
   const rail = v.co2_bar ? `<aside class="air" aria-label="CO₂: ${text(co2?.value ?? '—')} ${text(co2?.unit ?? '')} ${text(co2?.label ?? t('unavailable'))}"><div class="air-fill"></div>${v.co2_marks && co2 ? (co2.marks ?? []).filter(n => typeof n === 'number' && n >= 0 && n <= 1).map(n => `<i class="mark" style="bottom:${n * 100}%"></i>`).join('') : ''}<div class="air-top">CO₂</div>${v.co2_value ? `<div class="air-value">${text(co2?.value ?? '—')}<small>${text(co2?.unit ?? '')}</small></div>` : ''}</aside>` : '';
   root.innerHTML = `<div class="workspace ${!hasHome || !v.calendar ? 'single' : ''}">${home}${v.calendar ? calendarHTML(data.calendar, t) : ''}${v.co2_bar && v.co2_status ? `<div class="rail-caption">${caption}</div>` : ''}</div>${rail}`;
 }
+function sourceHTML(event, t) {
+  const chips = (event.sources ?? []).filter(s => s.showName || s.color).map(s => `<span class="source-chip" title="${text(s.label)}${!s.fresh ? ` · ${text(t('outdated'))}` : ''}">${/^#[\da-f]{6}$/i.test(s.color) ? `<i class="source-dot" style="background:${s.color}" aria-hidden="true"></i>` : ''}${s.showName ? `<span>${text(s.label)}</span>` : `<span class="sr-only">${text(s.label)}</span>`}</span>`).join('');
+  const outdated = event.outdated ? `<span class="outdated">${text(t('outdated'))}</span>` : '';
+  return chips || outdated ? `<div class="source">${chips}${outdated}</div>` : '';
+}
+function eventTitle(event) { return `<h2 data-key="${text(`title:${event.key}`)}" tabindex="0" title="${text(event.title)}">${text(event.title)}</h2>`; }
 function calendarHTML(calendar, t) {
   const c = calendar ?? EMPTY_PRESENTATION.calendar;
   const focus = c.state === 'ready' && ['soon', 'ongoing'].includes(c.mode) && c.focus;
-  const heading = `<div class="calendar-heading"><span>${text(t(focus ? 'today' : 'coming_up'))}</span><small>${text(c.sourceLabel ?? '')}</small></div>`;
+  const heading = `<div class="calendar-heading" tabindex="-1"><span>${text(t(focus && c.mode === 'ongoing' ? 'today' : 'coming_up'))}</span><small>${text(c.sourceLabel ?? '')}</small></div>`;
+  const allDay = c.allDay?.length ? `<div class="all-day"><span class="all-day-heading">${text(t('all_day'))}</span>${c.allDay.map(e => `<article class="all-day-entry"><div class="all-day-title" tabindex="0" title="${text(`${e.when} · ${e.title}`)}">${text(e.when)} · ${text(e.title)}</div>${sourceHTML(e, t)}</article>`).join('')}</div>` : '';
   let body;
   if (focus) {
     const f = c.focus;
-    body = `<article class="focus"><div class="badge">${text(t(c.mode))}</div><h2 tabindex="0" title="${text(f.title)}">${text(f.title)}</h2><div class="timing">${text(f.when)}</div><div class="source">${text(f.source)}</div>${c.next ? `<div class="next-event"><small>${text(c.next.when)}</small>${text(c.next.title)}</div>` : ''}</article>`;
-  } else if (c.state !== 'ready') {
-    body = `<p class="notice">${text(t('awaiting'))}</p>`;
+    body = `${allDay}<article class="focus"><div class="badge">${text(t(c.mode))}</div>${eventTitle(f)}<div class="timing" title="${text(f.when)}">${text(f.when)}</div>${sourceHTML(f, t)}${c.next ? `<div class="next-event"><small title="${text(c.next.when)}">${text(c.next.when)}</small><span tabindex="0" title="${text(c.next.title)}">${text(c.next.title)}</span></div>` : ''}</article>`;
   } else if (!c.items?.length && !c.allDay?.length) {
-    body = `<p class="notice">${text(t('no_events'))}</p>`;
+    body = `<p class="notice">${text(t(c.state === 'ready' ? 'no_events' : c.state === 'loading' ? 'calendar_loading' : 'awaiting'))}</p>`;
   } else {
-    body = `${c.allDay?.length ? `<div class="all-day"><span>${text(t('all_day'))}</span>${c.allDay.map(text).join(' · ')}</div>` : ''}<div class="events">${(c.items ?? []).map(e => `<article class="event"><div class="when">${text(e.when)}</div><h2 tabindex="0" title="${text(e.title)}">${text(e.title)}</h2><div class="source">${text(e.source)}</div></article>`).join('')}</div><div class="more" hidden></div>`;
+    body = `${allDay}<div class="events">${(c.items ?? []).map(e => `<article class="event"><div class="when">${text(e.when)}</div>${eventTitle(e)}${sourceHTML(e, t)}</article>`).join('')}</div>`;
   }
-  return `<section class="calendar" aria-label="${text(t('calendar'))}">${heading}${body}</section>`;
+  const actions = c.canDismiss || c.undo ? `<div class="calendar-actions">${c.canDismiss ? `<button type="button" class="calendar-action" data-action="done" data-event-key="${text(c.focus.key)}" data-key="${text(`done:${c.focus.key}`)}">${text(t('done'))}</button>` : ''}${c.undo ? `<button type="button" class="calendar-action" data-action="undo" data-event-key="${text(c.undo.key)}" data-key="${text(`undo:${c.undo.key}`)}" aria-label="${text(t('undo'))}: ${text(t('dismissed_event'))}">${text(t('undo'))}</button>` : ''}</div>` : '';
+  return `<section class="calendar ${focus ? 'has-focus' : ''}" aria-label="${text(t('calendar'))}">${heading}${c.notice ? `<div class="calendar-notice" role="status" title="${text(c.notice)}">${text(c.notice)}</div>` : ''}${body}<div class="more" data-kind="${focus ? 'all-day' : 'agenda'}" data-omitted="${focus ? c.omittedAllDay ?? 0 : c.omitted ?? 0}" hidden></div>${actions}</section>`;
 }
 export function fitAgenda(root, t) {
-  const calendar = root.querySelector('.calendar');
-  const events = [...root.querySelectorAll('.event')];
-  const more = root.querySelector('.more');
+  const calendar = root.querySelector('.calendar'), more = root.querySelector('.more');
   if (!calendar || !more) return;
-  events.forEach(event => { event.hidden = false; });
-  more.hidden = true;
-  let omitted = 0;
-  while (calendar.scrollHeight > calendar.clientHeight + 1 && omitted < events.length) {
-    events[events.length - 1 - omitted].hidden = true;
-    omitted++;
-    more.hidden = false;
-    more.textContent = t('more', { count: omitted });
+  const events = [...root.querySelectorAll('.event')], allDay = [...root.querySelectorAll('.all-day-entry')], group = root.querySelector('.all-day');
+  calendar.classList.remove('compact');
+  [...events, ...allDay].forEach(event => { event.hidden = false; });
+  if (group) group.hidden = false;
+  let omitted = Number(more.dataset.omitted) || 0;
+  const count = () => { more.hidden = !omitted; more.textContent = omitted ? t(more.dataset.kind === 'all-day' ? 'all_day_more' : 'more', { count: omitted }) : ''; };
+  count();
+  // Reserve notices/actions and the count before choosing how many rows fit.
+  for (const event of [...events.reverse(), ...allDay.reverse()]) {
+    if (calendar.scrollHeight <= calendar.clientHeight + 1) break;
+    event.hidden = true; omitted++; count();
+    if (group && allDay.every(e => e.hidden)) group.hidden = true;
   }
+  // Tighten gaps only; titles and other text never shrink to fit extra entries.
+  if (calendar.scrollHeight > calendar.clientHeight + 1) calendar.classList.add('compact');
 }

@@ -1,6 +1,6 @@
 # Stage 1: card foundation, layout, and appearance
 
-This document records the stage-1 baseline. Live readings, CO₂, and weather have since been implemented; see [stage 2](stage-2.md) for current source behavior and configuration.
+This document records the stage-1 baseline. Live readings, CO₂, and weather have since been implemented; see [stage 2](stage-2.md) for sensor/weather configuration and [stage 3](stage-3.md) for calendars and persistent Done/Undo.
 
 Stage 1 implements the accepted design's visual foundation. Live readings/weather, calendar retrieval and rules, entity-controlled/scheduled night activation, and persistent Done/Undo remain in stages 2–4. No existing Home Assistant dashboard or device configuration has been changed.
 

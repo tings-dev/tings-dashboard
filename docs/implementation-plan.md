@@ -1,6 +1,6 @@
 # Dashboard implementation plan
 
-Status: accepted in Q39. Stages 1 and 2 were explicitly requested and are implemented locally. Stages 3–5 remain pending and require separate requests. See [stage-1 notes](stage-1.md) and [stage-2 notes](stage-2.md) for configuration, verification, and limitations.
+Status: accepted in Q39. Stages 1–3 were explicitly requested and are implemented locally. Stages 4–5 remain pending and require separate requests. See [stage-1 notes](stage-1.md), [stage-2 notes](stage-2.md), and [stage-3 notes](stage-3.md) for configuration, verification, and limitations.
 
 Implement the [dashboard design](dashboard-design.md) one stage at a time when requested. Each stage should produce a usable, reviewable increment with its configuration controls and matching documentation. Do not postpone all configuration, error handling, or accessibility work until the end.
 
@@ -39,6 +39,8 @@ Acceptance:
 - Missing forecast support leaves current weather usable. Outside temperature works independently.
 
 ## Stage 3 — Multi-calendar agenda and focus
+
+Completed locally: authenticated per-calendar range retrieval, canonical occurrence merging, agenda/all-day capacity, fresh-event focus, partial-failure handling, and dashboard-scoped persistent Done/Undo. Editor/YAML controls, mock API preview, rule/lifecycle/persistence tests, and browser integration/layout checks are included. Actual HA calendar integration and devices remain unverified.
 
 Retrieve event ranges from the selected calendars. Keep source retrieval/freshness separate from event merging, eligibility, ordering, and display selection so those rules can be exercised deterministically. Implement all-day display, agenda capacity/overflow, starting-soon and in-progress modes, source identities, and partial-failure handling.
 

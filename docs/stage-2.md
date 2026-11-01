@@ -1,5 +1,7 @@
 # Stage 2: room readings, CO₂, and weather
 
+This document records stage 2. Calendar integration and persistent Done/Undo have since been implemented; see [stage 3](stage-3.md).
+
 Stage 2 connects the accepted layout to explicitly selected Home Assistant entities. It includes ordered readings, sensor details actions, the configurable CO₂ strip and bands, current weather, and an optional forecast. The visual editor and YAML use the same validation. Calendar integration is stage 3; automatic night activation is stage 4. Existing Home Assistant configuration and devices have not been changed.
 
 ## Try it

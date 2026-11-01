@@ -1,6 +1,6 @@
 import { InfoDashboard } from '/dist/info-dashboard.js';
 import { normalizeConfig, FEATURES } from '../src/config.js';
-import { calendarPresentation, readingSources, mockStates } from './fixtures.js';
+import { calendarSources, mockCalendarEvents, readingSources, mockStates } from './fixtures.js';
 import { parse, stringify } from 'yaml';
 class PreviewDashboard extends InfoDashboard {
   currentTime() { return document.getElementById('live').checked ? new Date() : new Date(this.night ? '2026-11-01T22:18:00Z' : '2026-11-01T13:42:00Z'); }
@@ -10,7 +10,12 @@ const $ = id => document.getElementById(id);
 const card = $('card'), editor = $('editor');
 const forecastListeners = new Set();
 const publishForecast = () => { for (const callback of forecastListeners) callback({ forecast: [{ datetime: new Date(card.currentTime().getTime() + 3600000).toISOString(), condition: 'rainy' }] }); };
-const hass = { connected: true, states: mockStates(), connection: {
+const hass = { async callApi(method, path) {
+  if (method !== 'GET') throw new Error('Preview calendars are read-only');
+  const entity = decodeURIComponent(path.split('/')[1].split('?')[0]);
+  if ($('scenario').value === 'partial' && entity === 'calendar.work') throw new Error('Demo calendar failure');
+  return mockCalendarEvents($('scenario').value, entity);
+}, connected: true, states: mockStates(), connection: {
   connected: true,
   async subscribeMessage(callback) {
     forecastListeners.add(callback); queueMicrotask(publishForecast);
@@ -27,7 +32,7 @@ function commit(value, updateEditor = true) {
 function preset() {
   const key = $('preset').value;
   const enabled = { full: FEATURES, 'no-calendar': FEATURES.filter(k => k !== 'calendar'), 'no-co2': FEATURES.filter(k => !k.startsWith('co2')), clock: ['clock', 'date'], readings: ['readings'], calendar: ['calendar'], blank: [] }[key];
-  const next = normalizeConfig(config ?? { room_name: 'Living room', readings: readingSources.slice(0, 2), co2: { entity: 'sensor.co2' }, weather: { entity: 'weather.home' } });
+  const next = normalizeConfig(config ?? { room_name: 'Living room', instance_id: 'preview-main', calendar: { sources: calendarSources }, readings: readingSources.slice(0, 2), co2: { entity: 'sensor.co2' }, weather: { entity: 'weather.home' } });
   for (const feature of FEATURES) next.features[feature].enabled = enabled.includes(feature);
   commit(next); updateData();
 }
@@ -42,7 +47,7 @@ function updateData() {
   hass.connected = $('source-state').value !== 'offline';
   hass.states = $('source-state').value === 'missing' ? {} : mockStates($('scenario').value === 'unavailable', $('co2-demo').value);
   card.hass = { ...hass }; editor.hass = hass; publishForecast();
-  card.presentation = { calendar: calendarPresentation($('scenario').value) };
+  card._calendar.refreshNow();
   $('status').textContent = `Synthetic ${$('scenario').value}; ${$('appearance').value}; ${$('viewport').value}; live clock: ${$('live').checked}`;
 }
 editor.addEventListener('config-changed', event => commit(event.detail.config, false));
@@ -53,7 +58,7 @@ $('viewport').onchange = resize;
 for (const name of ['scenario', 'live', 'source-state']) $(name).onchange = updateData;
 $('co2-demo').oninput = updateData;
 $('readings').onchange = () => { const next = structuredClone(config); next.readings = readingSources.slice(0, Number($('readings').value)); commit(next); updateData(); };
-$('unavailable').onclick = () => { hass.states = {}; card.hass = { ...hass }; editor.hass = hass; card.presentation = null; $('status').textContent = 'No mock entities: enabled sources show unavailable values.'; };
+$('unavailable').onclick = () => { hass.states = {}; card.hass = { ...hass }; editor.hass = hass; card.presentation = null; $('status').textContent = 'No mock entities: readings are unavailable and cached calendar entries are outdated.'; };
 card.addEventListener('hass-more-info', event => {
   $('entity-details').textContent = `Home Assistant will open entity details for ${event.detail.entityId}. This preview only demonstrates the event.`;
   $('more-info').showModal();

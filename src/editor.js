@@ -1,4 +1,4 @@
-import { FIELDS, configFields, FEATURES, getPath, setPath, normalizeConfig } from './config.js';
+import { FIELDS, createInstanceId, configFields, FEATURES, getPath, setPath, normalizeConfig } from './config.js';
 import { translator, configErrorText } from './i18n.js';
 const STYLES = `
 :host{display:block;color:var(--primary-text-color,#222);font:14px Arial,Helvetica,sans-serif;--field-bg:var(--card-background-color,#fff)}
@@ -36,9 +36,9 @@ export class InfoDashboardEditor extends HTMLElement {
     const style = document.createElement('style'); style.textContent = STYLES; this.shadowRoot.append(style);
     const notice = document.createElement('p'); notice.className = 'notice'; notice.textContent = this._t('stage_notice'); this.shadowRoot.append(notice);
     const error = document.createElement('p'); error.id = 'draft-error'; error.className = 'error'; error.setAttribute('role', 'alert'); this.shadowRoot.append(error);
-    for (const group of ['content', 'clock', 'readings', 'co2', 'thresholds', 'weather', 'visibility', 'appearance', 'layout', 'colors', 'night_colors']) {
+    for (const group of ['content', 'clock', 'readings', 'co2', 'thresholds', 'weather', 'calendar_settings', 'calendar_sources', 'visibility', 'appearance', 'layout', 'colors', 'night_colors']) {
       const section = document.createElement('fieldset'); const legend = document.createElement('legend'); legend.textContent = this._t(group); section.append(legend);
-      if (['readings', 'thresholds'].includes(group)) this._list(section, group === 'readings' ? 'readings' : 'co2.thresholds');
+      if (['readings', 'thresholds', 'calendar_sources'].includes(group)) this._list(section, { readings: 'readings', thresholds: 'co2.thresholds', calendar_sources: 'calendar.sources' }[group]);
       else if (group === 'visibility') this._visibility(section);
       else {
         const grid = document.createElement('div'); grid.className = 'fields';
@@ -57,6 +57,11 @@ export class InfoDashboardEditor extends HTMLElement {
     const control = this._control(field); label.append(control);
     if (field.kind === 'boolean') label.className = 'check';
     wrapper.append(label);
+    if (field.path === 'instance_id') {
+      const hint = document.createElement('small'); hint.textContent = this._t('instance_hint'); wrapper.append(hint);
+      const generate = document.createElement('button'); generate.type = 'button'; generate.textContent = this._t('generate_instance');
+      generate.onclick = () => { setPath(this._draft, 'instance_id', createInstanceId()); this._accept(); this._render(); }; wrapper.append(generate);
+    }
     if (field.kind === 'color') { const hint = document.createElement('small'); hint.textContent = this._t('inherit_color'); wrapper.append(hint); }
     const error = document.createElement('p'); error.className = 'error'; error.id = `error-${field.path}`; error.setAttribute('role', 'alert'); wrapper.append(error);control.setAttribute('aria-describedby', error.id);
     return wrapper;
@@ -67,7 +72,7 @@ export class InfoDashboardEditor extends HTMLElement {
     if (field.kind === 'select') {
       for (const choice of field.options) { const option = document.createElement('option'); option.value = choice; option.textContent = this._t(choice === 'night' ? 'night_preset' : choice); control.append(option); }
     } else if (field.kind === 'boolean') control.type = 'checkbox';
-    else if (field.kind === 'number') { control.type = 'number'; control.min = field.min; control.max = field.max; control.step = 'any'; }
+    else if (['number', 'integer'].includes(field.kind)) { control.type = 'number'; control.min = field.min; control.max = field.max; control.step = 'any'; }
     else control.type = 'text';
     if (field.kind === 'entity') { control.setAttribute('list', `entities-${field.domain}`); control.autocomplete = 'off'; control.spellcheck = false; }
     const value = getPath(this._draft, field.path);
@@ -76,7 +81,7 @@ export class InfoDashboardEditor extends HTMLElement {
     return control;
   }
   _suggestions() {
-    for (const domain of ['sensor', 'weather']) {
+    for (const domain of ['sensor', 'weather', 'calendar']) {
       let list = this.shadowRoot.getElementById(`entities-${domain}`);
       if (!list) { list = document.createElement('datalist'); list.id = `entities-${domain}`; this.shadowRoot.append(list); }
       list.replaceChildren();
@@ -97,7 +102,7 @@ export class InfoDashboardEditor extends HTMLElement {
     };
     items.forEach((_, index) => {
       const row = document.createElement('div'); row.className = 'list-item';
-      const title = document.createElement('h4'); title.textContent = `${this._t(path === 'readings' ? 'reading' : 'threshold')} ${index + 1}`; row.append(title);
+      const title = document.createElement('h4'); title.textContent = `${this._t(path === 'readings' ? 'reading' : path === 'calendar.sources' ? 'calendar_source' : 'threshold')} ${index + 1}`; row.append(title);
       const grid = document.createElement('div'); grid.className = 'fields';
       for (const field of configFields(this._draft).filter(f => f.path.startsWith(`${path}.${index}.`))) grid.append(this._field(field));
       row.append(grid); const actions = document.createElement('div'); actions.className = 'actions'; row.append(actions);
@@ -106,9 +111,10 @@ export class InfoDashboardEditor extends HTMLElement {
       action(actions, 'remove', () => change(() => items.splice(index, 1), Math.max(0, index - 1)));
       section.append(row);
     });
-    action(section, path === 'readings' ? 'add_reading' : 'add_threshold', () => change(() => items.push(path === 'readings'
+    action(section, path === 'readings' ? 'add_reading' : path === 'calendar.sources' ? 'add_calendar' : 'add_threshold', () => change(() => items.push(path === 'readings'
       ? { entity: '', label: '', precision: 'auto', enabled: true, night: true }
-      : { value: Math.min(1000000, (items.at(-1)?.value ?? 600) + 200), color: '#c96964', label: '' }), items.length), path === 'readings' && items.length >= 4);
+      : path === 'calendar.sources' ? { entity: '', label: '', color: '', enabled: true }
+      : { value: Math.min(1000000, (items.at(-1)?.value ?? 600) + 200), color: '#c96964', label: '' }), items.length), (path === 'readings' && items.length >= 4) || (path === 'calendar.sources' && items.length >= 16));
   }
   _visibility(section) {
     const heading = document.createElement('div'); heading.className = 'visibility-row heading';
@@ -128,7 +134,7 @@ export class InfoDashboardEditor extends HTMLElement {
     if (!field) return;
     const raw = event.target.value;
     const value = field.kind === 'boolean' ? event.target.checked
-      : field.kind === 'number' ? (raw.trim() ? Number(raw) : null)
+      : ['number', 'integer'].includes(field.kind) ? (raw.trim() ? Number(raw) : null)
       : field.kind === 'precision' ? (raw === 'auto' ? raw : raw.trim() ? Number(raw) : null)
       : field.kind === 'height' && raw !== 'viewport' ? (raw.trim() ? Number(raw) : null) : raw;
     setPath(this._draft, field.path, value);

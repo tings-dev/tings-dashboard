@@ -1,15 +1,15 @@
 # Info Dashboard
 
-Stages 1–2 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, dark/light/night appearance, and a visual editor sharing validation with YAML. Calendar integration and automatic night activation are the next stages.
+Stages 1–3 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light/night appearance, and a visual editor sharing validation with YAML. Automatic night activation and device acceptance are the next stages.
 
 ```sh
 npm ci
 npm run preview
 ```
 
-Open <http://127.0.0.1:8765>. This development preview uses the actual card bundle with mock Home Assistant sensor/weather sources and calendar layout fixtures, an optional live clock, and visual-editor/YAML round trips. Build the standalone card with `npm run build`; the output is `dist/info-dashboard.js`.
+Open <http://127.0.0.1:8765>. This development preview uses the actual card bundle with mock Home Assistant sensor, weather, and calendar responses, an optional live clock, and visual-editor/YAML round trips. Build the standalone card with `npm run build`; the output is `dist/info-dashboard.js`.
 
-See [sensor, CO₂, and weather configuration](docs/stage-2.md) and [clock/layout configuration](docs/stage-1.md). Run `npm run check`, `npm test`, and `npm run test:browser`; browser checks require a Playwright Chromium installation or `INFO_DASHBOARD_CHROMIUM` pointing to a compatible binary.
+See [calendar configuration and Done/Undo](docs/stage-3.md), [sensor, CO₂, and weather configuration](docs/stage-2.md) and [clock/layout configuration](docs/stage-1.md). Run `npm run check`, `npm test`, and `npm run test:browser`; browser checks require a Playwright Chromium installation or `INFO_DASHBOARD_CHROMIUM` pointing to a compatible binary.
 
 The [accepted design](docs/dashboard-design.md) records decisions Q1–Q39. The [implementation plan](docs/implementation-plan.md) tracks the five delivery stages. The [interview record](docs/design-interview.md) preserves the numbered decisions and original alternatives. No existing Home Assistant configuration or devices have been changed.
 
@@ -38,4 +38,4 @@ The initial comparison remains available in the [original A/B/C study](prototype
 - [Staged implementation plan](docs/implementation-plan.md)
 - [Glossary](GLOSSARY.md)
 
-These HTML files are the original disposable design studies, separate from the production source in `src/` and development preview in `preview/`. Decisions Q1–Q39 and the design are accepted. Synthetic Done/Undo in the studies resets on reload; production calendar integration and persistence remain later-stage work.
+These HTML files are the original disposable design studies, separate from the production source in `src/` and development preview in `preview/`. Decisions Q1–Q39 and the design are accepted. Synthetic Done/Undo in the studies resets on reload; the production implementation in `src/` persists Done/Undo per dashboard ID.

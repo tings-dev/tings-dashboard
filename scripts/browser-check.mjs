@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { checkCalendars } from './calendar-browser-check.mjs';
 import { checkEnvironment } from './environment-browser-check.mjs';
 import { startServer } from './serve.mjs';
 await import('./build.mjs');
@@ -17,7 +18,7 @@ try {
   async function bounds() {
     return page.evaluate(() => {
       const root = preview.card.shadowRoot; const screen = root.querySelector('.screen').getBoundingClientRect();
-      const bad = [...root.querySelectorAll('.clock,.date,.room,.reading,.weather,.co2-caption,.event,.focus,.more,.notice,.all-day')].filter(el => {
+      const bad = [...root.querySelectorAll('.clock,.date,.room,.reading,.weather,.co2-caption,.event,.focus,.more,.notice,.all-day,.calendar-action,.next-event,.all-day-entry,.calendar-notice')].filter(el => {
         const r = el.getBoundingClientRect();
         return r.width && r.height && (r.left < screen.left - 1 || r.right > screen.right + 1 || r.bottom > screen.bottom + 1 || r.top < screen.top - 1);
       }).map(el => el.className + ':' + el.textContent);
@@ -25,6 +26,7 @@ try {
       if (time?.height && footer?.height && time.bottom > footer.top + 1) bad.push('time/readings overlap');
       const calendar = root.querySelector('.calendar');
       if (calendar && calendar.scrollHeight > calendar.clientHeight + 1) bad.push('calendar overflow');
+      if (calendar && calendar.scrollWidth > calendar.clientWidth + 1) bad.push('calendar horizontal overflow');
       return bad;
     });
   }
@@ -68,7 +70,7 @@ try {
   await page.locator('#unavailable').click();
   assert.equal(await card.locator('.digits').textContent(), '14:42');
   assert.match(await card.locator('.calendar').textContent(), /unavailable/);
-  assert.equal(await card.locator('.event').count(), 0);
+  assert.ok(await card.locator('.outdated').count() > 0, 'cached calendar rows must be explicitly outdated');
   assert.equal(await card.locator('.reading strong').first().textContent(), '—');
   const editor = page.locator('#editor');
   const scale = editor.locator('[data-path="layout.clock_scale"]');
@@ -118,6 +120,7 @@ try {
   assert.equal(await card.locator('.screen').evaluate(e => getComputedStyle(e).transitionDuration), '0s');
   assert.equal((await readFile('dist/info-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
   await checkEnvironment(page, bounds, settle);
+  await checkCalendars(page, bounds, settle);
   assert.deepEqual(errors, []);
   console.log(`Browser checks passed: ${layouts} theme/layout combinations, focus stability, tuning extremes, editor/YAML drafts, injection, locale, and lifecycle.`);
 } finally {

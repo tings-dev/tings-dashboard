@@ -27,11 +27,11 @@ export const CARD_STYLES = `
 .calendar-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:var(--label-font);line-height:1.3;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
 .calendar-heading small{font-size:.8em;letter-spacing:0;text-transform:none}
 .all-day{font-size:var(--label-font);color:var(--muted);line-height:1.4;border-bottom:1px solid var(--divider);padding-bottom:12px;margin-bottom:4px;overflow-wrap:anywhere}
-.all-day span{display:block;font-size:.8em;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.all-day-heading{display:block;font-size:.8em;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 .event{padding:var(--event-padding) 0;border-bottom:1px solid var(--divider)}
 .when{font-size:var(--when-font);color:var(--muted);margin-bottom:9px;line-height:1.3;overflow-wrap:anywhere}
 h2{font-size:var(--event-font);font-weight:400;letter-spacing:-.025em;line-height:1.2;margin:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.source{font-size:var(--source-font);color:var(--muted);margin-top:9px;line-height:1.3;overflow-wrap:anywhere}
+.source{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;font-size:var(--source-font);color:var(--muted);margin-top:9px;line-height:1.3;overflow-wrap:anywhere}
 .more,.notice{color:var(--muted);font-size:var(--label-font);line-height:1.4;margin-top:14px;overflow-wrap:anywhere}
 .focus{padding-top:var(--focus-top)}
 .badge{font-size:var(--label-font);color:var(--accent);text-transform:uppercase;letter-spacing:.1em;line-height:1.3;margin-bottom:18px}
@@ -50,6 +50,14 @@ h2{font-size:var(--event-font);font-weight:400;letter-spacing:-.025em;line-heigh
 .no-clock.has-calendar .workspace:not(.single){grid-template-columns:minmax(0,32%) minmax(0,1fr)}
 .no-clock .footer{align-self:center}.no-clock .timeblock{justify-content:flex-start}
 .calendar-only .calendar{border:0;padding-inline-start:0}.calendar-only .focus h2{font-size:calc(var(--focus-font) * 1.25)}
+.source-chip{display:inline-flex;align-items:center;gap:4px;min-width:0}.source-chip>span{overflow:hidden;text-overflow:ellipsis}.source-dot{width:6px;height:6px;border-radius:50%;flex:none}.outdated{flex:none;font-style:italic}
+.all-day-entry{margin-top:6px}.all-day-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.all-day-entry .source{font-size:var(--source-font);margin-top:3px}
+.calendar-notice{font-size:var(--source-font);color:var(--muted);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.calendar-actions{display:flex;gap:10px;margin-top:12px}.calendar-action{font:inherit;font-size:var(--label-font);min-height:48px;min-width:64px;padding:8px 14px;border:1px solid var(--divider);border-radius:6px;background:var(--rail);color:var(--text);cursor:pointer}
+.has-focus .calendar-heading{margin-bottom:12px}.has-focus .focus{padding-top:8px}.has-focus .badge{margin-bottom:12px}.has-focus .timing{margin-top:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.has-focus .source{margin-top:6px}
+.has-focus .next-event{margin-top:12px;padding-top:10px}.next-event small,.next-event>span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.next-event small{margin-bottom:4px}
+.calendar.compact{padding-top:0}.compact .focus{padding-top:0}.compact .calendar-heading{margin-bottom:8px}.compact .badge{margin-bottom:6px}.compact .timing,.compact .source{margin-top:4px}.compact .next-event{margin-top:6px;padding-top:6px}.compact .calendar-actions{margin-top:6px}.compact .more{margin-top:4px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :host(.motion) .screen{transition:background-color .18s,color .18s}
 :focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 @media(prefers-reduced-motion:reduce){:host(.motion) .screen{transition:none}}
