@@ -26,12 +26,12 @@ test('actions merge other tabs, Undo follows dismissal order, and invalid action
 });
 test('blocked or corrupt storage degrades to local dismissal with an explicit failure flag', () => {
   const blocked = new Dismissals(() => { throw new Error('Storage blocked'); }); blocked.setScope('room', now); assert.equal(blocked.failed, true); blocked.dismiss(event('A'), now); assert.equal(blocked.active(now).size, 1); blocked.undo(event('A').key, now); assert.equal(blocked.active(now).size, 0);
-  const storage = memory(), a = new Dismissals(() => storage); storage.setItem('info-dashboard:dismissals:v1:room', '{bad'); a.setScope('room', now); assert.equal(a.failed, true); a.dismiss(event('A'), now); assert.equal(a.failed, false);
+  const storage = memory(), a = new Dismissals(() => storage); storage.setItem('tings-dashboard:dismissals:v1:room', '{bad'); a.setScope('room', now); assert.equal(a.failed, true); a.dismiss(event('A'), now); assert.equal(a.failed, false);
   storage.setItem(a.key, JSON.stringify({ version: 1, entries: [{ key: 'not JSON', end: now + 99 }, { key: event('Expired').key, end: now - 1 }, { key: event('Wrong end').key, end: now + 3 }] })); a.reload(now); assert.equal(a.active(now).size, 0);
 });
 
 test('reload prunes expired stored identities, and changing scope preserves other dashboards', () => {
   const storage = memory(), a = new Dismissals(() => storage); a.setScope('one', now); a.dismiss(event('One'), now); a.setScope('two', now); a.dismiss(event('Two'), now);
   a.setScope('one', now + 3600000); assert.equal(a.active(now + 3600000).size, 0); assert.deepEqual(JSON.parse(storage.getItem(a.key)).entries, []);
-  assert.equal(JSON.parse(storage.getItem('info-dashboard:dismissals:v1:two')).entries.length, 1);
+  assert.equal(JSON.parse(storage.getItem('tings-dashboard:dismissals:v1:two')).entries.length, 1);
 });

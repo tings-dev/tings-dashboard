@@ -33,7 +33,7 @@ export function nightControlProblem(config, hass) {
 export class NightControl {
   constructor(storage = () => globalThis.localStorage) { this.storage = storage; this.known = null; this.failed = false; }
   setScope(id, entity) {
-    const key = id && entity ? `info-dashboard:night:v1:${id}:${entity}` : '';
+    const key = id && entity ? `tings-dashboard:night:v1:${id}:${entity}` : '';
     if (key === this.key) return;
     this.key = key; this.known = null; this.failed = false; this.reload();
   }

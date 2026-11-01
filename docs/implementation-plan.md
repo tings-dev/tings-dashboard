@@ -8,7 +8,7 @@ Implement the [dashboard design](dashboard-design.md) one stage at a time when r
 
 Completed locally: standalone custom-card build, locale-aware live clock/date, accepted appearance presets, optional-section/day-night rendering, development fixtures, and shared visual-editor/YAML configuration. Verification: 20 unit tests and browser checks covering 63 theme/layout/viewport combinations, focus stability, tuning extremes, editor drafts, round trips, and lifecycle. Actual Home Assistant hosting and on-device checks remain unverified.
 
-Create the new custom card and configuration foundation in `info-dashboard`. Implement the clock, date, room name, accepted appearance presets, and structured layout with independently optional sections. Supply a development preview with representative synthetic states. Establish editor/YAML round trips and preserve disabled settings.
+Create the new custom card and configuration foundation in `tings-dashboard`. Implement the clock, date, room name, accepted appearance presets, and structured layout with independently optional sections. Supply a development preview with representative synthetic states. Establish editor/YAML round trips and preserve disabled settings.
 
 Implement layout rendering for day/night visibility as explicit state, leaving live night activation to stage 4. Validate supported typography, spacing, column proportions, and CO₂-strip sizing ranges against the intended viewports. Keep discarded A/B/C study code separate from production code.
 

@@ -3,7 +3,7 @@
 export class Dismissals {
   constructor(storage = () => globalThis.localStorage) { this.storage = storage; this.entries = []; this.failed = false; }
   setScope(id, now) {
-    const key = id ? `info-dashboard:dismissals:v1:${id}` : '';
+    const key = id ? `tings-dashboard:dismissals:v1:${id}` : '';
     if (key === this.key) return;
     this.key = key; this.entries = []; this.failed = false; this.reload(now);
   }

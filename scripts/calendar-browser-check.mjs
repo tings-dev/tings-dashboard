@@ -13,12 +13,12 @@ export async function checkCalendars(page, bounds, settle) {
   assert.equal(await card.locator('[data-action="done"]').count(), 0);
   assert.equal(await card.locator('.focus h2').textContent(), 'Call with Alex');
   assert.equal(await card.locator('[data-action="undo"]').evaluate(el => el === el.getRootNode().activeElement), true);
-  assert.ok(await page.evaluate(() => JSON.parse(localStorage.getItem('info-dashboard:dismissals:v1:preview-main')).entries.length === 1));
+  assert.ok(await page.evaluate(() => JSON.parse(localStorage.getItem('tings-dashboard:dismissals:v1:preview-main')).entries.length === 1));
   assert.deepEqual(await bounds(), [], 'dismissal with secondary focus and Undo');
   assert.deepEqual(await card.locator('.clock').boundingBox(), geometry, 'Done must not move the clock');
   // Another dashboard ID in the same browser still shows the occurrence.
   await page.evaluate(() => {
-    const other = document.createElement('info-dashboard-preview'); other.id = 'other-card'; other.style.width = '800px'; other.style.setProperty('--info-dashboard-height', '480px');
+    const other = document.createElement('tings-dashboard-preview'); other.id = 'other-card'; other.style.width = '800px'; other.style.setProperty('--tings-dashboard-height', '480px');
     other.setConfig({ ...preview.config, instance_id: 'preview-other' }); other.hass = preview.hass; document.body.append(other);
   });
   await page.waitForFunction(() => document.getElementById('other-card').shadowRoot.querySelector('[data-action="done"]'));
@@ -98,7 +98,7 @@ export async function checkCalendars(page, bounds, settle) {
   // Local HTTP environments may not expose randomUUID; ID generation still works.
   assert.ok(await page.evaluate(() => {
     const original = crypto.randomUUID; crypto.randomUUID = undefined;
-    try { const ctor = customElements.get('info-dashboard'); const a = ctor.getStubConfig(), b = ctor.getStubConfig(); return a.instance_id.length === 32 && a.instance_id !== b.instance_id; }
+    try { const ctor = customElements.get('tings-dashboard'); const a = ctor.getStubConfig(), b = ctor.getStubConfig(); return a.instance_id.length === 32 && a.instance_id !== b.instance_id; }
     finally { crypto.randomUUID = original; }
   }));
   await page.evaluate(() => {

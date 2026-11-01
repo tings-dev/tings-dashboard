@@ -21,6 +21,6 @@ export async function startServer(port = 8765) {
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   await import('./build.mjs');
-  const server = await startServer(Number(process.env.INFO_DASHBOARD_PORT || 8765));
+  const server = await startServer(Number(process.env.TINGS_DASHBOARD_PORT || 8765));
   console.log(`Development preview: http://127.0.0.1:${server.address().port}`);
 }

@@ -11,7 +11,7 @@ await import('./package.mjs');
 const server = await startServer(0);
 let browser;
 try {
-  browser = await chromium.launch({ executablePath: process.env.INFO_DASHBOARD_CHROMIUM || undefined });
+  browser = await chromium.launch({ executablePath: process.env.TINGS_DASHBOARD_CHROMIUM || undefined });
   const page = await browser.newPage({ viewport: { width: 1400, height: 1200 }, hasTouch: true });
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -92,7 +92,7 @@ try {
   await page.waitForFunction(() => getComputedStyle(preview.card.shadowRoot.querySelector('.screen')).backgroundColor === 'rgb(17, 34, 51)');
   assert.equal(await card.locator('.screen').evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(17, 34, 51)');
   // Real YAML application and editor emission retain independent night/unknown settings.
-  await page.locator('#yaml').fill('type: custom:info-dashboard\nroom_name: "<img src=x onerror=alert(1)>"\ntime_format: "12"\nlanguage: en-US\nfeatures:\n  calendar:\n    enabled: false\n    night: true\n    future_source: calendar.example\nview_layout:\n  position: main\n');
+  await page.locator('#yaml').fill('type: custom:tings-dashboard\nroom_name: "<img src=x onerror=alert(1)>"\ntime_format: "12"\nlanguage: en-US\nfeatures:\n  calendar:\n    enabled: false\n    night: true\n    future_source: calendar.example\nview_layout:\n  position: main\n');
   await page.locator('#apply').click();
   assert.equal(await card.locator('.room img').count(), 0);
   assert.match(await card.locator('.room').textContent(), /<img/);
@@ -121,7 +121,7 @@ try {
   assert.equal(editorOverflow, false, 'editor controls fit a narrow viewport');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   assert.equal(await card.locator('.screen').evaluate(e => getComputedStyle(e).transitionDuration), '0s');
-  assert.equal((await readFile('dist/info-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
+  assert.equal((await readFile('dist/tings-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
   await checkEnvironment(page, bounds, settle);
   await checkCalendars(page, bounds, settle);
   await checkNight(page, bounds, settle);

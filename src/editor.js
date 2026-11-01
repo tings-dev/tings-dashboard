@@ -12,7 +12,7 @@ small{font-size:12px;color:var(--secondary-text-color,#555)}.error{color:var(--e
 .visibility-row{display:grid;grid-template-columns:minmax(100px,1fr) 90px 100px;gap:8px;align-items:center;border-bottom:1px solid var(--divider-color,#ddd);padding:6px 0;line-height:1.4}.visibility-row label{align-items:center}.heading{font-size:12px;border:0;color:var(--secondary-text-color,#555)}
 :focus-visible{outline:2px solid var(--primary-color,#436e57);outline-offset:3px}
 `;
-export class InfoDashboardEditor extends HTMLElement {
+export class TingsDashboardEditor extends HTMLElement {
   constructor() {
     super(); this.attachShadow({ mode: 'open' });
     this.shadowRoot.addEventListener('input', event => this._input(event));

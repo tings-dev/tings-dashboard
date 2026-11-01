@@ -9,7 +9,7 @@ import { makeClockFormatter, resolveClockPreferences } from './clock.js';
 import { translator, configErrorText } from './i18n.js';
 import { CARD_STYLES } from './styles.js';
 import { EMPTY_PRESENTATION, renderView, fitAgenda } from './view.js';
-export class InfoDashboard extends HTMLElement {
+export class TingsDashboard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -47,7 +47,7 @@ export class InfoDashboard extends HTMLElement {
       if (button && !button.disabled && button.dataset.entity) this.dispatchEvent(new CustomEvent('hass-more-info', { detail: { entityId: button.dataset.entity }, bubbles: true, composed: true }));
     });
   }
-  static getConfigElement() { return document.createElement('info-dashboard-editor'); }
+  static getConfigElement() { return document.createElement('tings-dashboard-editor'); }
   static getStubConfig() { return { schema_version: 1, instance_id: createInstanceId() }; }
   getCardSize() { return 10; }
   getGridOptions() { return { columns: 'full', rows: 8, min_columns: 12, min_rows: 8 }; }
@@ -59,7 +59,7 @@ export class InfoDashboard extends HTMLElement {
     this._config = next;
     this._applyNight();
     this._dismissals.setScope(next.instance_id, this.currentTime().getTime());
-    this.style.height = `var(--info-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--header-height, 0px))' : `${next.layout.height}px`})`;
+    this.style.height = `var(--tings-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--header-height, 0px))' : `${next.layout.height}px`})`;
     this.classList.toggle('motion', next.motion);
     this._syncSources(); this._render();
     if (this.isConnected) this._startClock();

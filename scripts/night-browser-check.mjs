@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 export async function checkNight(page, bounds, settle) {
   await page.setViewportSize({ width: 1400, height: 1200 });
   await page.reload(); await page.waitForFunction(() => window.preview);
-  await page.evaluate(() => localStorage.removeItem('info-dashboard:night:v1:night-browser:input_boolean.preview_night'));
+  await page.evaluate(() => localStorage.removeItem('tings-dashboard:night:v1:night-browser:input_boolean.preview_night'));
   await page.selectOption('#appearance', 'dark');
   await page.selectOption('#preset', 'full');
   await page.selectOption('#source-state', 'online');
@@ -21,7 +21,7 @@ export async function checkNight(page, bounds, settle) {
   assert.match(await editor.locator('#night-status').textContent(), /unavailable|verfügbar/);
   assert.equal(await page.evaluate(() => preview.card.night), true);
   await page.evaluate(() => {
-    const fresh = document.createElement('info-dashboard'); fresh.hass = preview.card.hass; fresh.setConfig(preview.config);
+    const fresh = document.createElement('tings-dashboard'); fresh.hass = preview.card.hass; fresh.setConfig(preview.config);
     window.nightReloaded = fresh.night;
   });
   assert.equal(await page.evaluate(() => nightReloaded), true);
@@ -32,7 +32,7 @@ export async function checkNight(page, bounds, settle) {
   assert.equal(await editor.locator('#night-status').textContent(), '');
   await page.selectOption('#night-state', 'unavailable');
   await page.evaluate(() => {
-    const fresh = document.createElement('info-dashboard'); fresh.hass = preview.card.hass; fresh.setConfig(preview.config); window.nightReloaded = fresh.night;
+    const fresh = document.createElement('tings-dashboard'); fresh.hass = preview.card.hass; fresh.setConfig(preview.config); window.nightReloaded = fresh.night;
   });
   assert.equal(await page.evaluate(() => nightReloaded), false, 'day fallback persists too');
   // An ended cached focus cannot return after night. A fresh range is requested.

@@ -1,4 +1,4 @@
-export const CARD_TYPE = 'custom:info-dashboard';
+export const CARD_TYPE = 'custom:tings-dashboard';
 export const THEMES = {
   dark: { background: '#111917', text: '#f1eee6', muted: '#b7c2b8', accent: '#dfc495', divider: '#ffffff1d', rail: '#ffffff06' },
   light: { background: '#f4f0e7', text: '#273b34', muted: '#56665a', accent: '#79602b', divider: '#30443425', rail: '#253a2b09' },

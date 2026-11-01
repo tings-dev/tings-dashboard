@@ -48,8 +48,8 @@ export async function checkAudit(page, bounds, settle) {
     assert.deepEqual(await bounds(), [], `audited ${theme} layout`);
   }
   // Exercise the actual minified distribution, independently of preview code.
-  const bundle = await readFile('release/info-dashboard.js');
-  assert.equal((await readFile('release/SHA256SUMS', 'utf8')).trim(), `${createHash('sha256').update(bundle).digest('hex')}  info-dashboard.js`);
+  const bundle = await readFile('release/tings-dashboard.js');
+  assert.equal((await readFile('release/SHA256SUMS', 'utf8')).trim(), `${createHash('sha256').update(bundle).digest('hex')}  tings-dashboard.js`);
   // A fresh page without the development imports loads only the release file.
   assert.equal(bundle.toString().includes('sourceMappingURL'), false);
   assert.equal(bundle.toString().includes('Walk by the lake'), false);
@@ -58,12 +58,12 @@ export async function checkAudit(page, bounds, settle) {
   try {
     await releasePage.route('**/release-test', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body></body></html>' }));
     await releasePage.goto(new URL('/release-test', page.url()).href);
-    await releasePage.evaluate(async () => { await import('/release/info-dashboard.js'); });
+    await releasePage.evaluate(async () => { await import('/release/tings-dashboard.js'); });
     const { version } = JSON.parse(await readFile('package.json', 'utf8'));
     assert.deepEqual(await releasePage.evaluate(() => {
-      const ctor = customElements.get('info-dashboard');
-      const card = document.createElement('info-dashboard'); card.setConfig({}); document.body.append(card);
-      return { version: ctor.version, clock: !!card.shadowRoot.querySelector('.clock'), editor: !!ctor.getConfigElement(), picker: customCards.filter(c => c.type === 'info-dashboard').length };
+      const ctor = customElements.get('tings-dashboard');
+      const card = document.createElement('tings-dashboard'); card.setConfig({}); document.body.append(card);
+      return { version: ctor.version, clock: !!card.shadowRoot.querySelector('.clock'), editor: !!ctor.getConfigElement(), picker: customCards.filter(c => c.type === 'tings-dashboard').length };
     }), { version, clock: true, editor: true, picker: 1 });
   } finally { await releaseContext.close(); }
   console.log(`Stage 5 browser audit passed: ${fields.length} editor fields, translations, full titles, focus, contrast and standalone release.`);

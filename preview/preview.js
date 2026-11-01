@@ -1,15 +1,15 @@
-import { InfoDashboard } from '/dist/info-dashboard.js';
+import { TingsDashboard } from '/dist/tings-dashboard.js';
 import { normalizeConfig, FEATURES } from '../src/config.js';
 import { calendarSources, mockCalendarEvents, readingSources, mockStates } from './fixtures.js';
 import { parse, stringify } from 'yaml';
-class PreviewDashboard extends InfoDashboard {
+class PreviewDashboard extends TingsDashboard {
   currentTime() {
     const fixed = new Date(document.getElementById('fixed-time')?.value ?? '');
     if (Number.isFinite(fixed.getTime())) return fixed;
     return document.getElementById('live').checked ? new Date() : new Date(document.getElementById('appearance').value === 'night' ? '2026-11-01T22:18:00Z' : '2026-11-01T13:42:00Z');
   }
 }
-customElements.define('info-dashboard-preview', PreviewDashboard);
+customElements.define('tings-dashboard-preview', PreviewDashboard);
 const $ = id => document.getElementById(id);
 const card = $('card'), editor = $('editor');
 const forecastListeners = new Set();
@@ -44,7 +44,7 @@ function resize() {
   const [width, height] = $('viewport').value.split(',').map(Number);
   const available = Math.min(width, document.documentElement.clientWidth - 48);
   const scale = available / width;
-  card.style.width = `${width}px`; card.style.setProperty('--info-dashboard-height', `${height}px`); card.style.transform = `scale(${scale})`;
+  card.style.width = `${width}px`; card.style.setProperty('--tings-dashboard-height', `${height}px`); card.style.transform = `scale(${scale})`;
   $('frame').style.width = `${available}px`; $('frame').style.height = `${height * scale}px`;
 }
 function updateData() {

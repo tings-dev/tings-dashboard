@@ -13,9 +13,9 @@ npm ci
 npm run preview
 ```
 
-Open <http://127.0.0.1:8765>. The command builds the card and starts a loopback-only development server. Set `INFO_DASHBOARD_PORT` to select another port. Re-run the command after source changes; there is no hot reload.
+Open <http://127.0.0.1:8765>. The command builds the card and starts a loopback-only development server. Set `TINGS_DASHBOARD_PORT` to select another port. Re-run the command after source changes; there is no hot reload.
 
-The preview loads the same `dist/info-dashboard.js` bundle used by Home Assistant. Its separate development bundle supplies synthetic presentations and a fixed example time. Select **Live clock** for the real time. Examples cover seven content combinations, three appearances, event states, unavailable data, and two/four readings. The visual editor and YAML pane round-trip the actual configuration. Invalid YAML or field drafts keep the displayed card at its last valid configuration.
+The preview loads the same `dist/tings-dashboard.js` bundle used by Home Assistant. Its separate development bundle supplies synthetic presentations and a fixed example time. Select **Live clock** for the real time. Examples cover seven content combinations, three appearances, event states, unavailable data, and two/four readings. The visual editor and YAML pane round-trip the actual configuration. Invalid YAML or field drafts keep the displayed card at its last valid configuration.
 
 The appearance selector's **Night state** sets explicit rendering state. It is not a simulation of automatic entity/schedule activation. Use **Remove synthetic data** to see the genuine stage-1 unavailable placeholders for enabled data regions. No synthetic event or sensor values ship inside the card bundle.
 
@@ -25,16 +25,16 @@ The appearance selector's **Night state** sets explicit rendering state. It is n
 npm run build
 ```
 
-This creates `dist/info-dashboard.js`, a self-contained ES module with no runtime package dependencies, and a source map. `dist/preview.js` is development-only. The build targets Chromium 105+ JavaScript; the actual Lineage kiosk browser remains to be verified.
+This creates `dist/tings-dashboard.js`, a self-contained ES module with no runtime package dependencies, and a source map. `dist/preview.js` is development-only. The build targets Chromium 105+ JavaScript; the actual Lineage kiosk browser remains to be verified.
 
-When separately ready to install, the card artifact can be registered as a Home Assistant dashboard JavaScript module, with the card type `custom:info-dashboard`. No resource has been installed by this stage. HACS/release packaging and actual device validation are stage 5 work.
+When separately ready to install, the card artifact can be registered as a Home Assistant dashboard JavaScript module, with the card type `custom:tings-dashboard`. No resource has been installed by this stage. HACS/release packaging and actual device validation are stage 5 work.
 
 ## Stage-1 configuration
 
 The default card shows a clock and date. The room name appears when provided. Data regions default to disabled so an unconfigured card does not invent sensor/calendar selections.
 
 ```yaml
-type: custom:info-dashboard
+type: custom:tings-dashboard
 schema_version: 1
 room_name: Living room
 language: auto
@@ -115,7 +115,7 @@ Enabled data regions without an adapter show explicit unavailable placeholders. 
 | `layout.spacing` | 1 | 0.85–1.1 |
 | `motion` | true | Boolean; reduced-motion preference always takes precedence |
 
-`viewport` uses the browser viewport height minus Home Assistant's `--header-height` when present. A host can explicitly supply `--info-dashboard-height` to fit another container; the preview uses this without changing saved YAML. Actual kiosk header/usable-area behavior needs device verification.
+`viewport` uses the browser viewport height minus Home Assistant's `--header-height` when present. A host can explicitly supply `--tings-dashboard-height` to fit another container; the preview uses this without changing saved YAML. Actual kiosk header/usable-area behavior needs device verification.
 
 Scales are requested sizes within the available layout. Clock type is additionally fitted to its column and vertical space so 12-hour suffixes, long dates, and crowded reading layouts cannot overlap. The selected column proportion applies while clock and calendar are both present. Reduced-content layouts deliberately reflow according to the design. The clock and sensor positions remain stable across calendar mode changes.
 
@@ -141,7 +141,7 @@ npm test
 npm run test:browser
 ```
 
-The browser command builds first and starts/stops its own local server. Install a compatible Playwright Chromium with `npx playwright install chromium --only-shell`, or set `INFO_DASHBOARD_CHROMIUM` to an existing executable. It does not require the sibling `echo-show-card` repository. Generated screenshots go to ignored `artifacts/`.
+The browser command builds first and starts/stops its own local server. Install a compatible Playwright Chromium with `npx playwright install chromium --only-shell`, or set `TINGS_DASHBOARD_CHROMIUM` to an existing executable. It does not require the sibling `echo-show-card` repository. Generated screenshots go to ignored `artifacts/`.
 
 Checks cover clock timezone/DST/date boundaries; configuration defaults, validation and YAML round trips; 63 content/theme/viewport combinations; calendar mode geometry; two/four readings; layout tuning extremes; invalid editor and YAML drafts; unknown-property preservation; text injection; locale updates; timer cleanup/reconnect; narrow editor layout; and reduced motion. Real HA card-editor hosting, native device rendering, and physical distance readability remain unverified.
 

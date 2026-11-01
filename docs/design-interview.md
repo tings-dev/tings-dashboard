@@ -102,7 +102,7 @@ Sources: `../echo-show-card/README.md`, `../echo-show-card/GLOSSARY.md`, `../ech
 - **Q28 — Edited dismissed occurrences:** an occurrence whose title or start/end changes becomes visible again. Unchanged occurrences stay dismissed until their end; dismissal applies to a merged occurrence across its duplicate sources on this dashboard/browser.
 - **Q29 — Weather scope:** select a Home Assistant weather entity; show its current condition icon and text, with an optional single short forecast summary when available. No separate weather account or forecast charts in the first version. Outdoor temperature remains independently selected.
 - **Q30 — Remaining layout combinations:** hiding the clock gives the agenda more space while readings stay grouped. If only readings remain, center them. If every element is hidden, show only the chosen background; configuration guidance remains available in the editor.
-- **Q31 — New-card boundary:** develop the new custom card in info-dashboard with a fresh configuration schema, keeping the existing echo-show-card available for comparison and rollback. Migration is a later explicit step, not an automatic conversion of existing dashboards.
+- **Q31 — New-card boundary:** develop the new custom card in tings-dashboard with a fresh configuration schema, keeping the existing echo-show-card available for comparison and rollback. Migration is a later explicit step, not an automatic conversion of existing dashboards.
 
 ## Decision tree
 

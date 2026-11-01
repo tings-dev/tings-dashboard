@@ -7,7 +7,7 @@ Stage 3 connects selected Home Assistant calendars to the dashboard. It merges d
 Select sources explicitly, enable the calendar section, and give each dashboard card its own stable `instance_id` when using Done/Undo. The visual editor includes source suggestions, add/remove/reorder controls, and **Generate new ID**. Cards created through HA's picker receive a generated ID in their stub configuration. YAML examples use illustrative entities and IDs; assign your own.
 
 ```yaml
-type: custom:info-dashboard
+type: custom:tings-dashboard
 schema_version: 1
 instance_id: living-room-display
 calendar:
@@ -93,7 +93,7 @@ Available-height fitting reserves space for notices, controls and overflow count
 
 Done is available only for the currently focused in-progress occurrence. The handler checks current eligibility again, so a late tap cannot dismiss an event that has already ended or changed. A dismissal applies to the merged occurrence across all its duplicate sources and removes it from this dashboard's agenda/focus until its end. A title, start or end edit yields a new identity and is visible again.
 
-Dismissals persist in `localStorage` under `info-dashboard:dismissals:v1:<instance_id>`, scoped to the current HA origin and browser profile. The stored entries contain occurrence identity (including title/start/end), end time and dismissal order. Calendar payloads are not persisted. Expired entries are pruned during ticking, actions and reload. Undo restores the most recently dismissed, still-live occurrence; repeated Undo can restore earlier dismissals. It remains available through reload until the relevant occurrence expires.
+Dismissals persist in `localStorage` under `tings-dashboard:dismissals:v1:<instance_id>`, scoped to the current HA origin and browser profile. The stored entries contain occurrence identity (including title/start/end), end time and dismissal order. Calendar payloads are not persisted. Expired entries are pruned during ticking, actions and reload. Undo restores the most recently dismissed, still-live occurrence; repeated Undo can restore earlier dismissals. It remains available through reload until the relevant occurrence expires.
 
 Keep a card's ID unchanged across reloads and presentation edits. **Use a different ID for every independent card**, including cloned room dashboards. Changing the ID starts a different dismissal scope; it does not delete the old scope. Separate browsers/devices have separate storage even when their configuration IDs match. Storage events update another tab showing the same ID, and actions first incorporate that tab's latest stored entries.
 
@@ -109,6 +109,6 @@ Run `npm run preview`. Choose **Starting soon**, **In progress**, **One calendar
 - `src/card.js`: adapter lifecycle, clock-driven selection, storage events and guarded actions.
 - `src/view.js` / `src/styles.js`: source identities, notices, controls and height fitting.
 
-Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium through Playwright or `INFO_DASHBOARD_CHROMIUM`. The suite includes the earlier layout/sensor/weather checks plus exact calendar boundaries; duplicate/partial-failure behavior; date/offset/DST interpretation; lookahead and freshness limits; stale response rejection; persistence, expiry and isolation; editor/YAML validation; keyboard Done/Undo; long translated titles; and combined focus/failure/Undo layouts at the three supported preview sizes. Screenshots are generated under ignored `artifacts/stage3-{dark,light,night}-800.png`.
+Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium through Playwright or `TINGS_DASHBOARD_CHROMIUM`. The suite includes the earlier layout/sensor/weather checks plus exact calendar boundaries; duplicate/partial-failure behavior; date/offset/DST interpretation; lookahead and freshness limits; stale response rejection; persistence, expiry and isolation; editor/YAML validation; keyboard Done/Undo; long translated titles; and combined focus/failure/Undo layouts at the three supported preview sizes. Screenshots are generated under ignored `artifacts/stage3-{dark,light,night}-800.png`.
 
 Actual HA calendar integration behavior, card editor hosting, Lineage rendering, and physical readability remain unverified. This stage does not deploy or change the household dashboard. Stage 4 adds automatic night activation; stage 5 performs packaging and device acceptance.

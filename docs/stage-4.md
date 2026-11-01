@@ -7,7 +7,7 @@ Night activation now connects the existing independent night palette and section
 Entity control is intended for household automations. Set a stable, unique dashboard ID, select **On/off entity** in **Night activation**, and choose an entity whose raw state is `on` or `off`:
 
 ```yaml
-type: custom:info-dashboard
+type: custom:tings-dashboard
 instance_id: bedroom-display
 night:
   mode: entity
@@ -19,7 +19,7 @@ night:
 Alternatively, configure a daily wall-clock schedule:
 
 ```yaml
-type: custom:info-dashboard
+type: custom:tings-dashboard
 night:
   mode: schedule
   start: '22:00'
@@ -42,7 +42,7 @@ Ticks use actual current time rather than accumulating elapsed intervals, so for
 
 ## Persistence and presentation
 
-Last known entity mode is saved in `localStorage` under `info-dashboard:night:v1:<instance_id>:<entity_id>`, containing only a version and boolean. It is isolated by HA origin, browser profile, dashboard ID and selected entity. Changing ID or entity selects a different scope and preserves the old one. Reload and same-origin storage events read that scope; a currently valid live entity state takes precedence. No calendar titles, readings or entity payloads are stored here.
+Last known entity mode is saved in `localStorage` under `tings-dashboard:night:v1:<instance_id>:<entity_id>`, containing only a version and boolean. It is isolated by HA origin, browser profile, dashboard ID and selected entity. Changing ID or entity selects a different scope and preserves the old one. Reload and same-origin storage events read that scope; a currently valid live entity state takes precedence. No calendar titles, readings or entity payloads are stored here.
 
 Blocked storage retains the last known mode in memory; reload persistence depends on browser storage being available. A new instance with blocked, missing or corrupt storage and no valid entity state uses night. Valid entity updates retry failed writes. Clearing stored state while the control is unavailable resets to the initial night fallback.
 

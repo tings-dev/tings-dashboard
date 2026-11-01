@@ -1,5 +1,5 @@
 export const CARD_STYLES = `
-:host{display:block;box-sizing:border-box;width:100%;height:var(--info-dashboard-height,100dvh);font-family:Arial,Helvetica,sans-serif}
+:host{display:block;box-sizing:border-box;width:100%;height:var(--tings-dashboard-height,100dvh);font-family:Arial,Helvetica,sans-serif}
 *{box-sizing:border-box}[hidden]{display:none!important}
 .screen{height:100%;width:100%;overflow:hidden;position:relative;background:var(--background);color:var(--text);display:grid;grid-template-columns:minmax(0,1fr) var(--rail-width)}
 .screen.no-rail{grid-template-columns:minmax(0,1fr)}

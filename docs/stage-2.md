@@ -10,14 +10,14 @@ Run `npm run preview` and open <http://127.0.0.1:8765>. The preview now supplies
 
 The **Night state** selector exercises the existing explicit night state, including per-reading visibility. It does not activate night automatically. **Remove synthetic data** clears mock entities and calendar fixtures; configured readings retain their slots with dashes. The preview's two/four-reading selector applies example source lists; ordinary editor changes preserve selected sources.
 
-Build with `npm run build`. The standalone artifact remains `dist/info-dashboard.js`, with no runtime package dependencies. Schema version remains `1`; stage-1 configurations still work and have no sources selected by default.
+Build with `npm run build`. The standalone artifact remains `dist/tings-dashboard.js`, with no runtime package dependencies. Schema version remains `1`; stage-1 configurations still work and have no sources selected by default.
 
 ## Example configuration
 
 Replace these illustrative entity IDs with your own. Source selection and section visibility are separate: selecting a source does not enable a hidden feature.
 
 ```yaml
-type: custom:info-dashboard
+type: custom:tings-dashboard
 schema_version: 1
 room_name: Living room
 readings:
@@ -120,7 +120,7 @@ All new source, precision, band, range, label, forecast, and visibility controls
 
 ## Verification and remaining acceptance
 
-Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium, selectable through `INFO_DASHBOARD_CHROMIUM`. Generated images are under ignored `artifacts/stage2-{dark,light,night}-800.png`.
+Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium, selectable through `TINGS_DASHBOARD_CHROMIUM`. Generated images are under ignored `artifacts/stage2-{dark,light,night}-800.png`.
 
 Verification covers numerical-state rejection; native/fallback number formatting; zero/four reading and invalid configuration boundaries; exact CO₂ thresholds, arbitrary band counts, clamping and neutral failures; forecast selection/DST/expiry; failed, pending and obsolete subscriptions; actual editor/YAML interactions; reading reordering and per-item night visibility; native details events and live-update focus; default CO₂ text contrast at low/intermediate/full heights in all three themes; and the existing 63 layout/theme/viewport combinations. Additional browser cases cover four readings plus forecast at 800×480, 960×600 and 1280×800, small-screen tuning extremes, long labels, German labels, and narrow editor controls.
 

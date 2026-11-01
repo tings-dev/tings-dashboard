@@ -14,7 +14,7 @@ npm run test:browser
 npm run package
 ```
 
-Browser checks need a Playwright Chromium installation (`npx playwright install chromium`) or `INFO_DASHBOARD_CHROMIUM` pointing to a compatible executable. The release command creates `release/info-dashboard.js` and `release/SHA256SUMS`. It is a minified, self-contained ES module with the card, editor, styles and translations, with no runtime imports, source map, development fixtures or preview bundle. The package version appears in its banner and `customElements.get('info-dashboard').version`. Generated `dist/`, `release/` and screenshots are ignored by Git.
+Browser checks need a Playwright Chromium installation (`npx playwright install chromium`) or `TINGS_DASHBOARD_CHROMIUM` pointing to a compatible executable. The release command creates `release/tings-dashboard.js` and `release/SHA256SUMS`. It is a minified, self-contained ES module with the card, editor, styles and translations, with no runtime imports, source map, development fixtures or preview bundle. The package version appears in its banner and `customElements.get('tings-dashboard').version`. Generated `dist/`, `release/` and screenshots are ignored by Git.
 
 `npm run build` instead produces development bundles and source maps in `dist/`; `npm run preview` serves synthetic examples on localhost. Do not distribute `preview.js`.
 
@@ -25,15 +25,15 @@ The JavaScript build targets Chromium 105 syntax. Rendering uses [dynamic viewpo
 These are preparation instructions; no Home Assistant files or resources have been changed by this repository work.
 
 1. Keep the previous card bundle/resource and dashboard configuration for rollback. Add the new card to a separate test dashboard before replacing a room display.
-2. Copy only `release/info-dashboard.js` into `<HA config>/www/info-dashboard.js`. If creating `www` for the first time, restart HA so the folder is served.
-3. Register `/local/info-dashboard.js?v=0.1.0` under **Settings → Dashboards → Resources**, type **JavaScript module**. If your installation manages resources in YAML, use the YAML below instead.
-4. Reload the browser, open the card picker, and select **Info Dashboard**, or add `type: custom:info-dashboard` in the dashboard editor. Start with the clock-only default, then choose your own sources and enable their sections.
+2. Copy only `release/tings-dashboard.js` into `<HA config>/www/tings-dashboard.js`. If creating `www` for the first time, restart HA so the folder is served.
+3. Register `/local/tings-dashboard.js?v=0.1.0` under **Settings → Dashboards → Resources**, type **JavaScript module**. If your installation manages resources in YAML, use the YAML below instead.
+4. Reload the browser, open the card picker, and select **Tings Dashboard**, or add `type: custom:tings-dashboard` in the dashboard editor. Start with the clock-only default, then choose your own sources and enable their sections.
 
 ```yaml
 lovelace:
   resource_mode: yaml
   resources:
-    - url: /local/info-dashboard.js?v=0.1.0
+    - url: /local/tings-dashboard.js?v=0.1.0
       type: module
 ```
 
@@ -43,18 +43,18 @@ Home Assistant's [resource registration documentation](https://contributors.home
 
 ## HACS release preparation
 
-The repository includes `hacs.json` with `filename: info-dashboard.js` and `hide_default_branch: true`. The explicit filename handles the GitHub repository name (`tings-dashboard`) differing from the card filename. This is a **release-only** distribution: source branches do not contain a built bundle, and `dist/preview.js` must never be picked up as a plugin asset.
+The repository includes `hacs.json` with `filename: tings-dashboard.js` and `hide_default_branch: true`. The filename matches the GitHub repository name (`tings-dashboard`). This is a **release-only** distribution: source branches do not contain a built bundle, and `dist/preview.js` must never be picked up as a plugin asset.
 
-When a release is separately authorized, verify the checks above, ensure the package version matches the chosen release tag, and attach **only `release/info-dashboard.js` and `release/SHA256SUMS`** to that GitHub release. HACS needs a public GitHub repository, a description/topics/README and a published release with its JavaScript asset. Publishing a tag alone is insufficient. Do not commit development `dist/` files into the release tree. No tag or release has been created or published here.
+When a release is separately authorized, verify the checks above, ensure the package version matches the chosen release tag, and attach **only `release/tings-dashboard.js` and `release/SHA256SUMS`** to that GitHub release. HACS needs a public GitHub repository, a description/topics/README and a published release with its JavaScript asset. Publishing a tag alone is insufficient. Do not commit development `dist/` files into the release tree. No tag or release has been created or published here.
 
-After a release exists and the repository is public, users can add `https://github.com/tings-dev/tings-dashboard` as a HACS custom repository of type **Dashboard**, download the release, and verify its JavaScript module resource. The expected resource URL is `/hacsfiles/tings-dashboard/info-dashboard.js`. Avoid registering both the manual and HACS copy. Actual HACS download and resource registration remain unverified until that release exists.
+After a release exists and the repository is public, users can add `https://github.com/tings-dev/tings-dashboard` as a HACS custom repository of type **Dashboard**, download the release, and verify its JavaScript module resource. The expected resource URL is `/hacsfiles/tings-dashboard/tings-dashboard.js`. Avoid registering both the manual and HACS copy. Actual HACS download and resource registration remain unverified until that release exists.
 
 The manifest and release layout follow the current [HACS general requirements](https://www.hacs.xyz/docs/publish/start/) and [dashboard plugin requirements](https://www.hacs.xyz/docs/publish/plugin/), checked on 2026-11-01. This preparation does not claim acceptance into the default HACS catalog.
 
 ## Start a configuration
 
 ```yaml
-type: custom:info-dashboard
+type: custom:tings-dashboard
 instance_id: living-room-display
 room_name: Living room
 readings:
