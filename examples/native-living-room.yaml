@@ -1,0 +1,73 @@
+# Complete dashboard: paste into a NEW dashboard's Raw configuration editor.
+# For an existing dashboard, append the view below to its existing views list.
+# Replace the four example entity IDs with your own IDs.
+# Uses only built-in Home Assistant cards; no HACS, card-mod, or helpers.
+# Setup, limitations, and official references: ../docs/native-dashboard.md
+title: Living room
+views:
+  - title: Living room
+    path: living-room
+    icon: mdi:sofa
+    type: panel
+    cards:
+      - type: horizontal-stack
+        cards:
+          # Left: room/date, large clock, CO₂ and temperatures.
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                text_only: true
+                content: >-
+                  **Living room** · {{ now().strftime('%d.%m.%Y') }}
+
+              - type: clock
+                clock_style: digital
+                clock_size: large
+                time_format: "24"
+                time_zone: Europe/Berlin
+                show_seconds: false
+                no_background: true
+
+              - type: horizontal-stack
+                cards:
+                  - type: gauge
+                    entity: sensor.living_room_co2
+                    name: Living room CO₂
+                    min: 400
+                    max: 2000
+                    needle: true
+                    # Same five visualization bands as Tings Dashboard.
+                    # Omit segment labels so the actual ppm value stays visible.
+                    segments:
+                      - from: 400
+                        color: "#8daea0"
+                      - from: 800
+                        color: "#c5c691"
+                      - from: 1000
+                        color: "#d9b36f"
+                      - from: 1400
+                        color: "#db8d64"
+                      - from: 1800
+                        color: "#c96964"
+
+                  - type: vertical-stack
+                    cards:
+                      - type: sensor
+                        entity: sensor.living_room_temperature
+                        name: Inside
+                        icon: mdi:home-thermometer
+                        graph: none
+
+                      - type: sensor
+                        entity: sensor.outside_temperature
+                        name: Outside
+                        icon: mdi:thermometer
+                        graph: none
+
+          # Right: actual calendar agenda, including overlapping/all-day events.
+          - type: calendar
+            title: Coming up
+            initial_view: listWeek
+            show_add_event: false
+            entities:
+              - calendar.household

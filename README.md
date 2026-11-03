@@ -2,6 +2,8 @@
 
 A Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light appearance, and a visual editor sharing validation with YAML. Stage 5 software audit and release preparation are implemented; physical device acceptance remains pending. See [stage 5 results](docs/stage-5.md).
 
+For a similar living room display using only built-in Home Assistant cards, see the [native dashboard YAML](examples/native-living-room.yaml) and [setup notes](docs/native-dashboard.md).
+
 ```sh
 npm ci
 npm run preview
