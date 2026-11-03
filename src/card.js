@@ -192,11 +192,10 @@ export class TingsDashboard extends HTMLElement {
   _fitCO2Value() {
     const value = this._root.querySelector('.air-value');
     if (!value) return;
-    // Keep the original strip-based size after moving the number beside it.
-    this._root.style.setProperty('--co2-value-width', `${this._root.querySelector('.air').clientWidth}px`);
+    // Size from the strip, but let the number's box grow with its text so
+    // scaled values keep the same right edge as the status below.
+    const available = Math.max(0, this._root.querySelector('.air').clientWidth - 16);
     value.style.fontSize = '100px';
-    const style = getComputedStyle(value);
-    const available = Math.max(0, value.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
     const range = document.createRange(); range.selectNodeContents(value);
     const scale = this._config.features.co2_value.scale;
     value.style.fontSize = `${100 * available / Math.max(1, range.getBoundingClientRect().width) * scale}px`;

@@ -24,6 +24,16 @@ export async function checkComponentScales(page, settle) {
     await editor.locator(`[data-path="features.${feature}.scale"]`).fill(feature === 'co2_value' ? '1.5' : '0.5');
     await settle(); const after = await measure();
     assert.ok(Math.abs(after[feature] / before[feature] - 2) < 0.02, `${feature} scales its rendered size`);
+    if (feature === 'co2_value') {
+      const edges = await card.evaluate(card => {
+        const root = card.shadowRoot, range = document.createRange();
+        range.selectNodeContents(root.querySelector('.air-value'));
+        const value = range.getBoundingClientRect().right;
+        range.selectNodeContents(root.querySelector('.co2-copy'));
+        return { value, label: range.getBoundingClientRect().right };
+      });
+      assert.ok(Math.abs(edges.value - edges.label) < 1, 'scaled CO₂ number and label share a right edge');
+    }
     for (const other of Object.keys(metrics).filter(key => key !== feature && key !== 'clock')) {
       if (feature === 'co2_bar' && other === 'co2_value') continue;
       assert.ok(Math.abs(after[other] - before[other]) < 0.1, `${feature} must not change ${other}`);
