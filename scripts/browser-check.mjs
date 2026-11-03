@@ -5,6 +5,7 @@ import { checkAudit } from './audit-browser-check.mjs';
 import { checkNight } from './night-browser-check.mjs';
 import { checkCalendars } from './calendar-browser-check.mjs';
 import { checkEnvironment } from './environment-browser-check.mjs';
+import { checkEditor } from './editor-browser-check.mjs';
 import { startServer } from './serve.mjs';
 await import('./build.mjs');
 await import('./package.mjs');
@@ -16,6 +17,8 @@ try {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}`);
   await page.waitForFunction(() => window.preview);
+  await checkEditor(page);
+  await page.reload(); await page.waitForFunction(() => window.preview);
   const settle = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const card = page.locator('#card');
   async function bounds() {

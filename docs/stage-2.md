@@ -112,6 +112,8 @@ A visible card maintains at most one active forecast subscription. Subscription 
 
 All new source, precision, band, range, label, forecast, and visibility controls are exposed in the visual editor and YAML. Invalid drafts keep the last valid displayed configuration, including when HA echoes it back. Editing another field while a draft is invalid preserves that edit until the complete draft becomes valid. Unknown properties survive round trips, including properties inside reading and threshold items. User text is escaped before rendering.
 
+Entity suggestions retain their existing options across routine HA state updates so those updates do not dismiss the native selection popup. Added, removed, or renamed entities refresh the choices. Browser regression checks verify suggestion stability while an entity field is focused; mouse interaction with the native popup still requires verification in HA.
+
 - `src/environment.js` resolves state availability, reading formatting, CO₂ bands, current weather, and future-period selection without DOM or transport calls.
 - `src/forecast.js` owns the subscription lifecycle and stale-callback protection.
 - `src/weather-icons.js` supplies fixed local SVG paths; no remote icon service is used.

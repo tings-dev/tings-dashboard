@@ -95,10 +95,13 @@ export class TingsDashboardEditor extends HTMLElement {
     for (const domain of ['sensor', 'weather', 'calendar', 'any']) {
       let list = this.shadowRoot.getElementById(`entities-${domain}`);
       if (!list) { list = document.createElement('datalist'); list.id = `entities-${domain}`; this.shadowRoot.append(list); }
-      list.replaceChildren();
-      for (const entity of Object.values(this._hass?.states ?? {}).filter(e => domain === 'any' ? ['on', 'off', 'unknown', 'unavailable'].includes(e.state) : e.entity_id?.startsWith(`${domain}.`)).sort((a, b) => a.entity_id.localeCompare(b.entity_id))) {
-        const option = document.createElement('option'); option.value = entity.entity_id; option.label = entity.attributes?.friendly_name ?? ''; list.append(option);
-      }
+      const choices = Object.values(this._hass?.states ?? {}).filter(e => domain === 'any' ? ['on', 'off', 'unknown', 'unavailable'].includes(e.state) : e.entity_id?.startsWith(`${domain}.`)).sort((a, b) => a.entity_id.localeCompare(b.entity_id))
+        .map(entity => ({ value: entity.entity_id, label: entity.attributes?.friendly_name ?? '' }));
+      // Replacing unchanged options dismisses the native popup during HA updates.
+      if (list.options.length === choices.length && choices.every((choice, index) => list.options[index].value === choice.value && list.options[index].label === choice.label)) continue;
+      list.replaceChildren(...choices.map(choice => {
+        const option = document.createElement('option'); option.value = choice.value; option.label = choice.label; return option;
+      }));
     }
   }
   _list(section, path) {
