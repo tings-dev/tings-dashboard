@@ -18,10 +18,10 @@ export async function checkComponentScales(page, settle) {
   // The CO₂ value fits the strip, so changing strip width also changes its font size.
   for (const feature of Object.keys(metrics)) {
     await page.evaluate(({ saved, feature }) => {
-      const c = structuredClone(saved); c.features[feature].scale = 0.25; preview.commit(c);
+      const c = structuredClone(saved); c.features[feature].scale = feature === 'co2_value' ? 0.75 : 0.25; preview.commit(c);
     }, { saved, feature });
     await settle(); const before = await measure();
-    await editor.locator(`[data-path="features.${feature}.scale"]`).fill('0.5');
+    await editor.locator(`[data-path="features.${feature}.scale"]`).fill(feature === 'co2_value' ? '1.5' : '0.5');
     await settle(); const after = await measure();
     assert.ok(Math.abs(after[feature] / before[feature] - 2) < 0.02, `${feature} scales its rendered size`);
     for (const other of Object.keys(metrics).filter(key => key !== feature && key !== 'clock')) {

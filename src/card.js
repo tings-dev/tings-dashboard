@@ -196,7 +196,7 @@ export class TingsDashboard extends HTMLElement {
     const style = getComputedStyle(value);
     const available = Math.max(0, value.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
     const range = document.createRange(); range.selectNodeContents(value);
-    const scale = Math.min(1, this._config.features.co2_value.scale);
+    const scale = this._config.features.co2_value.scale;
     value.style.fontSize = `${100 * available / Math.max(1, range.getBoundingClientRect().width) * scale}px`;
   }
   _fitClock() {
