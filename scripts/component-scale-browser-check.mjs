@@ -15,6 +15,7 @@ export async function checkComponentScales(page, settle) {
   const measure = async () => Object.fromEntries(await Promise.all(Object.entries(metrics).map(async ([key, [selector, property]]) =>
     [key, await card.locator(selector).first().evaluate((el, property) => parseFloat(getComputedStyle(el)[property]), property)])));
   // Compare actual computed sizes; fitting may cap the clock at the larger size.
+  // The CO₂ value fits the strip, so changing strip width also changes its font size.
   for (const feature of Object.keys(metrics)) {
     await page.evaluate(({ saved, feature }) => {
       const c = structuredClone(saved); c.features[feature].scale = 0.25; preview.commit(c);
@@ -24,6 +25,7 @@ export async function checkComponentScales(page, settle) {
     await settle(); const after = await measure();
     assert.ok(Math.abs(after[feature] / before[feature] - 2) < 0.02, `${feature} scales its rendered size`);
     for (const other of Object.keys(metrics).filter(key => key !== feature && key !== 'clock')) {
+      if (feature === 'co2_bar' && other === 'co2_value') continue;
       assert.ok(Math.abs(after[other] - before[other]) < 0.1, `${feature} must not change ${other}`);
     }
   }

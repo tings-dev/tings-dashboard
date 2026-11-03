@@ -41,12 +41,12 @@ export async function checkEnvironment(page, bounds, settle) {
         assert.equal(await card.locator(selector).evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
       }
       assert.equal(await card.locator('.air-value').textContent(), Number(raw).toLocaleString('en-GB'));
-      const fit = await card.locator('.air-top').evaluate(el => {
+      const fit = await card.locator('.air-value').evaluate(el => {
         const range = document.createRange(); range.selectNodeContents(el);
         const text = range.getBoundingClientRect(), box = el.getBoundingClientRect();
         return { left: text.left - box.left, right: box.right - text.right };
       });
-      assert.ok(Math.abs(fit.left - 6) < 1 && Math.abs(fit.right - 6) < 1, `${theme}/${raw}: CO₂ label fills the strip with padding`);
+      assert.ok(Math.abs(fit.left - 8) < 1 && Math.abs(fit.right - 8) < 1, `${theme}/${raw}: CO₂ value fills the strip with padding`);
       assert.deepEqual(await bounds(), [], `${theme}/${raw}`);
     }
   }
@@ -144,5 +144,5 @@ export async function checkEnvironment(page, bounds, settle) {
   assert.equal(await page.evaluate(() => stops), 3);
   await page.setViewportSize({ width: 400, height: 900 }); await settle();
   assert.equal(await editor.evaluate(e => { const r = e.getBoundingClientRect(); return [...e.shadowRoot.querySelectorAll('input,select,fieldset,button')].some(x => x.getBoundingClientRect().right > r.right + 1); }), false);
-  console.log('Stage 2 browser checks passed: live readings/actions, focus, availability, CO₂ transparency/label fitting/bands, forecast layouts/lifecycle, and list editor/YAML controls.');
+  console.log('Stage 2 browser checks passed: live readings/actions, focus, availability, CO₂ transparency/value fitting/bands, forecast layouts/lifecycle, and list editor/YAML controls.');
 }
