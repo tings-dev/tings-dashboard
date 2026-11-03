@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parse, stringify } from 'yaml';
-import { FIELDS, getPath, normalizeConfig, palette, setPath, visibleFeatures } from '../src/config.js';
+import { FEATURES, FIELDS, getPath, normalizeConfig, palette, setPath, visibleFeatures } from '../src/config.js';
 test('minimal defaults are room-neutral and preserve explicit empty/false values', () => {
   const c = normalizeConfig({ room_name: '', features: { clock: { enabled: false } } });
   assert.equal(c.features.clock.enabled, false); assert.equal(c.features.calendar.enabled, false);
@@ -50,4 +50,22 @@ for (const [path, values] of [
 });
 test('malformed mapping sections are rejected instead of falling back to defaults', () => {
   for (const value of [null, [], 'dark']) assert.throws(() => normalizeConfig({ appearance: value }), /appearance/);
+});
+test('each component defaults to scale 1 and accepts independent floating point scales', () => {
+  const defaults = normalizeConfig({});
+  for (const feature of FEATURES) {
+    assert.equal(defaults.features[feature].scale, 1);
+    for (const scale of [0.1, 0.125, 1, 1.2345, 10]) {
+      const config = normalizeConfig({ features: { [feature]: { enabled: false, scale } } });
+      assert.equal(config.features[feature].scale, scale);
+      assert.equal(config.features[feature].enabled, false);
+      assert.ok(FEATURES.filter(key => key !== feature).every(key => config.features[key].scale === 1));
+      assert.deepEqual(normalizeConfig(parse(stringify(config))), config);
+    }
+  }
+});
+test('invalid component scales report the exact field even when disabled', () => {
+  for (const feature of FEATURES) for (const scale of [0, 0.0999, 10.0001, -1, NaN, Infinity, -Infinity, null, '', '1.5', true]) {
+    assert.throws(() => normalizeConfig({ features: { [feature]: { enabled: false, scale } } }), error => error.path === `features.${feature}.scale` && error.code === 'range');
+  }
 });

@@ -91,7 +91,8 @@ const en = {
   "condition_windy": "Windy",
   "condition_windy-variant": "Windy and cloudy",
 
-  content: 'Content', clock: 'Clock and date', appearance: 'Appearance', layout: 'Layout', visibility: 'Feature visibility', colors: 'Color overrides',
+  scale: 'Scale', scale_hint: 'Scale each component from 0.1 to 10 (1 = default). Large values may clip content; the clock still fits the available space.',
+  content: 'Content', clock: 'Clock and date', appearance: 'Appearance', layout: 'Layout', visibility: 'Feature visibility and scale', colors: 'Color overrides',
   room: 'Room name', date: 'Date', readings: 'Sensor readings', weather: 'Weather', calendar: 'Calendar', co2_bar: 'CO₂ strip', co2_value: 'CO₂ number', co2_status: 'CO₂ status', co2_marks: 'Threshold marks',
   enabled: 'Enabled', coming_up: 'Coming up', today: 'Today', soon: 'Starting soon', ongoing: 'In progress', all_day: 'All day', no_events: 'No upcoming events', unavailable: 'Unavailable', awaiting: 'Calendar unavailable', weather_unavailable: 'Weather unavailable', reading: 'Reading', more: '+{count} more',
   empty_notice: 'All content is hidden in this presentation.', stage_notice: 'Select sensor and weather entities explicitly, then enable their sections under Feature visibility. Calendar sources are configured below.',
@@ -195,7 +196,8 @@ const de = {
   "condition_windy": "Windig",
   "condition_windy-variant": "Windig und bewölkt",
 
-  content: 'Inhalt', clock: 'Uhr und Datum', appearance: 'Darstellung', layout: 'Anordnung', visibility: 'Sichtbarkeit', colors: 'Farben',
+  scale: 'Größenfaktor', scale_hint: 'Jeden Bereich von 0.1 bis 10 skalieren (1 = Standard). Große Werte können Inhalte abschneiden; die Uhr passt sich weiterhin dem verfügbaren Platz an.',
+  content: 'Inhalt', clock: 'Uhr und Datum', appearance: 'Darstellung', layout: 'Anordnung', visibility: 'Sichtbarkeit und Größe', colors: 'Farben',
   room: 'Raumname', date: 'Datum', readings: 'Messwerte', weather: 'Wetter', calendar: 'Kalender', co2_bar: 'CO₂-Anzeige', co2_value: 'CO₂-Messwert', co2_status: 'CO₂-Status', co2_marks: 'Schwellenmarkierungen',
   enabled: 'Aktiv', coming_up: 'Demnächst', today: 'Heute', soon: 'Beginnt bald', ongoing: 'Läuft gerade', all_day: 'Ganztägig', no_events: 'Keine anstehenden Termine', unavailable: 'Nicht verfügbar', awaiting: 'Kalender nicht verfügbar', weather_unavailable: 'Wetter nicht verfügbar', reading: 'Messwert', more: '+{count} weitere',
   empty_notice: 'In dieser Darstellung sind alle Inhalte ausgeblendet.', stage_notice: 'Sensor- und Wetterentitäten auswählen und ihre Bereiche unter Sichtbarkeit aktivieren. Kalenderquellen werden unten konfiguriert.',

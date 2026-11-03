@@ -9,7 +9,8 @@ input[type=checkbox]{width:24px;height:24px;min-height:24px;accent-color:var(--p
 .band-color{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:7px 8px}.band-color input[type=color]{width:48px;height:44px;padding:4px;align-self:end;cursor:pointer}.band-color>.error{grid-column:1/-1}
 small{font-size:12px;color:var(--secondary-text-color,#555)}.error{color:var(--error-color,#aa2020);font-size:13px;margin:0;line-height:1.5;overflow-wrap:anywhere}.error:empty{display:none}
 [aria-invalid=true]{border-color:var(--error-color,#aa2020)}.notice{line-height:1.5;color:var(--secondary-text-color,#555)}
-.visibility-row{display:grid;grid-template-columns:minmax(100px,1fr) 90px;gap:8px;align-items:center;border-bottom:1px solid var(--divider-color,#ddd);padding:6px 0;line-height:1.4}.visibility-row label{align-items:center}.heading{font-size:12px;border:0;color:var(--secondary-text-color,#555)}
+.visibility-row{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(70px,100px);gap:8px;align-items:center;border-bottom:1px solid var(--divider-color,#ddd);padding:6px 0;line-height:1.4}.visibility-row label{align-items:center}.heading{font-size:12px;border:0;color:var(--secondary-text-color,#555)}
+.visibility-row>div{min-width:0}.visibility-row .check{justify-content:center}.visibility-row label>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 :focus-visible{outline:2px solid var(--primary-color,#436e57);outline-offset:3px}
 `;
 export class TingsDashboardEditor extends HTMLElement {
@@ -136,14 +137,17 @@ export class TingsDashboardEditor extends HTMLElement {
       : { value: Math.min(1000000, (items.at(-1)?.value ?? 600) + 200), color: '#c96964', label: '' }), items.length), (path === 'readings' && items.length >= 4) || (path === 'calendar.sources' && items.length >= 16));
   }
   _visibility(section) {
+    const hint = document.createElement('p'); hint.className = 'notice'; hint.textContent = this._t('scale_hint'); section.append(hint);
     const heading = document.createElement('div'); heading.className = 'visibility-row heading';
-    for (const key of ['', 'enabled']) { const span = document.createElement('span'); span.textContent = key ? this._t(key) : ''; heading.append(span); }
+    for (const key of ['', 'enabled', 'scale']) { const span = document.createElement('span'); span.textContent = key ? this._t(key) : ''; heading.append(span); }
     section.append(heading);
     for (const key of FEATURES) {
       const row = document.createElement('div'); row.className = 'visibility-row'; const name = document.createElement('span'); name.textContent = this._t(key); row.append(name);
-      for (const state of ['enabled']) {
-        const field = FIELDS.find(f => f.path === `features.${key}.${state}`); const label = document.createElement('label'); const control = this._control(field);
-        control.setAttribute('aria-label', `${this._t(key)}: ${this._t(state)}`); label.append(control); row.append(label);
+      for (const state of ['enabled', 'scale']) {
+        const field = FIELDS.find(f => f.path === `features.${key}.${state}`);
+        const wrapper = this._field({ ...field, label: state });
+        wrapper.querySelector('input').setAttribute('aria-label', `${this._t(key)}: ${this._t(state)}`);
+        row.append(wrapper);
       }
       section.append(row);
     }

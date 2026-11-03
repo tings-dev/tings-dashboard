@@ -15,6 +15,20 @@ See [calendar configuration and Done/Undo](docs/stage-3.md), [sensor, CO₂, and
 
 The [accepted design](docs/dashboard-design.md) records decisions Q1–Q39. The [implementation plan](docs/implementation-plan.md) tracks the five delivery stages. The [interview record](docs/design-interview.md) preserves the numbered decisions and original alternatives. No existing Home Assistant configuration or devices have been changed.
 
+Each component has its own **Scale** control under **Feature visibility and scale**, accepting decimal values from `0.1` to `10` (default `1`). For example, this makes readings larger and the calendar smaller:
+
+```yaml
+features:
+  readings:
+    enabled: true
+    scale: 1.25
+  calendar:
+    enabled: true
+    scale: 0.85
+```
+
+Scales multiply the existing layout settings. The clock still fits its available space; large scales may clip other content. See the [configuration reference](docs/configuration.md) for details.
+
 Each dashboard has one appearance preset and one set of enabled sections. For a reduced evening display, create a second dashboard and let Home Assistant control switching. Use a different `instance_id` for each card. Night activation, per-feature night switches and separate night colors have been removed. Existing `appearance.day` values carry over to `appearance.preset` (`dark` or `light`); a former `night` preset falls back to `dark`. Existing color overrides and entity selections are retained; removed settings are dropped from editor output.
 
 ## Design studies

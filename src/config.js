@@ -45,8 +45,10 @@ export const FIELDS = [
   field('layout.rail_width', 'number', 7, 'layout', { min: 6, max: 10, step: 1 }),
   field('layout.spacing', 'number', 1, 'layout', { min: 0.85, max: 1.1, step: 0.05 }),
   field('motion', 'boolean', true, 'appearance'),
-  ...FEATURES.map(name =>
-    field(`features.${name}.enabled`, 'boolean', ['room', 'clock', 'date'].includes(name), 'visibility')),
+  ...FEATURES.flatMap(name => [
+    field(`features.${name}.enabled`, 'boolean', ['room', 'clock', 'date'].includes(name), 'visibility'),
+    field(`features.${name}.scale`, 'number', 1, 'visibility', { min: 0.1, max: 10 }),
+  ]),
   ...Object.keys(THEMES.dark).map(name => field(`appearance.colors.${name}`, 'color', '', 'colors')),
 ];
 export function getPath(object, path) {

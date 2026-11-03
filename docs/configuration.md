@@ -12,6 +12,8 @@ Use `type: custom:tings-dashboard`. `schema_version` is always `1`; both are fix
 
 CO₂ maximum must exceed minimum. Calendar dismissal requires a stable unique dashboard ID when the section and selected sources are enabled. Source selection does not enable a section. Each dashboard has one appearance and one set of visibility settings. Create a second dashboard for a different presentation and let Home Assistant control switching.
 
+Each component has an independent `features.<name>.scale` from 0.1 to 10, including arbitrary decimals; 1 preserves its original size. Scale affects text, icons and internal spacing; the readings scale applies to all readings, and the CO₂ strip scale multiplies its configured width (capped at 100% of the card). CO₂ value, status and threshold marks scale independently. Scales multiply the existing layout clock/text/spacing settings; column allocation and card height remain controlled by layout. The clock still shrinks to fit, and the calendar still omits agenda rows that do not fit. Large scales can clip content in the fixed card area. Interactive controls keep their minimum touch sizes. Disabled components retain their scale.
+
 See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂/weather](stage-2.md), and [calendars and persistence](stage-3.md) for behavioral details and complete examples.
 
 ## Calendar behavior
@@ -86,20 +88,30 @@ See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂
 | --- | --- | --- | --- |
 | `motion` | Enable subtle transitions | `true` | true / false |
 
-## Feature visibility
+## Feature visibility and scale
 
 | YAML field | Editor label | Default | Accepted values |
 | --- | --- | --- | --- |
 | `features.room.enabled` | Room name: Enabled | `true` | true / false |
+| `features.room.scale` | Room name: Scale | `1` | 0.1–10 |
 | `features.clock.enabled` | Clock and date: Enabled | `true` | true / false |
+| `features.clock.scale` | Clock and date: Scale | `1` | 0.1–10 |
 | `features.date.enabled` | Date: Enabled | `true` | true / false |
+| `features.date.scale` | Date: Scale | `1` | 0.1–10 |
 | `features.readings.enabled` | Sensor readings: Enabled | `false` | true / false |
+| `features.readings.scale` | Sensor readings: Scale | `1` | 0.1–10 |
 | `features.weather.enabled` | Weather: Enabled | `false` | true / false |
+| `features.weather.scale` | Weather: Scale | `1` | 0.1–10 |
 | `features.calendar.enabled` | Calendar: Enabled | `false` | true / false |
+| `features.calendar.scale` | Calendar: Scale | `1` | 0.1–10 |
 | `features.co2_bar.enabled` | CO₂ strip: Enabled | `false` | true / false |
+| `features.co2_bar.scale` | CO₂ strip: Scale | `1` | 0.1–10 |
 | `features.co2_value.enabled` | CO₂ number: Enabled | `false` | true / false |
+| `features.co2_value.scale` | CO₂ number: Scale | `1` | 0.1–10 |
 | `features.co2_status.enabled` | CO₂ status: Enabled | `false` | true / false |
+| `features.co2_status.scale` | CO₂ status: Scale | `1` | 0.1–10 |
 | `features.co2_marks.enabled` | Threshold marks: Enabled | `false` | true / false |
+| `features.co2_marks.scale` | Threshold marks: Scale | `1` | 0.1–10 |
 
 ## Color overrides
 

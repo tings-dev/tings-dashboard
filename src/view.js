@@ -1,5 +1,5 @@
 import { weatherIcon } from './weather-icons.js';
-import { palette, visibleFeatures } from './config.js';
+import { FEATURES, palette, visibleFeatures } from './config.js';
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const text = escapeHTML;
 export const EMPTY_PRESENTATION = Object.freeze({ readings: [], calendar: { state: 'unavailable', items: [] }, weather: null, co2: null });
@@ -14,13 +14,15 @@ export function renderView(root, config, presentation, t) {
   root.className = ['screen', !v.co2_bar ? 'no-rail' : '', v.calendar ? 'has-calendar' : 'solo', !v.clock ? 'no-clock' : '', !v.clock && !v.date && !v.calendar ? 'readings-only' : '', v.calendar && !hasHome ? 'calendar-only' : ''].join(' ');
   root.lang = config.language === 'auto' ? '' : config.language;
   for (const [key, value] of Object.entries(palette(config))) root.style.setProperty(`--${key}`, value);
-  root.style.setProperty('--rail-width', `${config.layout.rail_width}%`);
+  for (const key of FEATURES) root.style.setProperty(`--${key.replaceAll('_', '-')}-scale`, config.features[key].scale);
+  root.style.setProperty('--co2-caption-scale', config.features[v.co2_status ? 'co2_status' : 'co2_value'].scale);
+  root.style.setProperty('--rail-width', `${Math.min(100, config.layout.rail_width * config.features.co2_bar.scale)}%`);
   root.style.setProperty('--left-width', `${config.layout.left_width}%`);
-  root.style.setProperty('--caption-space', v.co2_bar && v.co2_status ? '10px' : '0px');
+  root.style.setProperty('--caption-space', v.co2_bar && v.co2_status ? `${10 * config.features.co2_status.scale}px` : '0px');
   // Only a literal hex color is permitted in an adapter-supplied CSS value.
   root.style.setProperty('--air-color', /^#[\da-f]{6}$/i.test(co2?.color) ? co2.color : 'var(--muted)');
   root.style.setProperty('--air-fill', `${Math.max(0, Math.min(1, Number(co2?.fraction) || 0)) * 100}%`);
-  const caption = `<div class="co2-caption"><i class="dot" aria-hidden="true"></i><span title="${text(co2?.label ?? t('unavailable'))}">CO₂${!v.co2_bar && v.co2_value ? ` ${text(co2?.value ?? '—')}${co2?.unit ? ` ${text(co2.unit)}` : ''}` : ''}${v.co2_status && co2?.label !== '' ? ` · ${text(co2?.label ?? t('unavailable'))}` : ''}</span></div>`;
+  const caption = `<div class="co2-caption"><i class="dot" aria-hidden="true"></i><div class="co2-copy" title="${text(co2?.label ?? t('unavailable'))}"><span class="co2-caption-label">CO₂</span>${!v.co2_bar && v.co2_value ? `<span class="co2-caption-value"> ${text(co2?.value ?? '—')}${co2?.unit ? ` ${text(co2.unit)}` : ''}</span>` : ''}${v.co2_status && co2?.label !== '' ? `<span class="co2-caption-status"> · ${text(co2?.label ?? t('unavailable'))}</span>` : ''}</div></div>`;
   const readings = data.readings ?? [];
   const home = hasHome ? `<section class="home">${hasRoom ? `<div class="room">${text(config.room_name)}</div>` : '<div></div>'}<div class="timeblock">${v.clock ? '<div class="clock" role="timer" aria-live="off"><span class="digits"></span><span class="period"></span></div>' : ''}${v.date ? '<div class="date"></div>' : ''}</div><div class="footer">${v.readings ? `<div class="readings">${readings.map(r => `<button type="button" class="reading" data-key="${text(r.key)}" data-entity="${text(r.entity)}" ${r.inspectable ? '' : 'disabled'} title="${text(r.label)}" aria-label="${text(r.label)}: ${text(r.value === '—' ? t('unavailable') : `${r.value ?? '—'} ${r.unit ?? ''}`)}"><strong title="${text(r.value ?? '—')}">${text(r.value ?? '—')}<small>${text(r.unit ?? '')}</small></strong><span title="${text(r.label)}">${text(r.label)}</span></button>`).join('')}</div>` : ''}${v.weather ? `<div class="weather">${weatherIcon(data.weather?.condition)}<div class="weather-copy"><span>${text(data.weather?.text ?? t('weather_unavailable'))}</span>${data.weather?.forecast ? `<span class="forecast" title="${text(data.weather.forecast)}">${text(data.weather.forecast)}</span>` : ''}</div></div>` : ''}${!v.co2_bar && (v.co2_value || v.co2_status) ? caption : ''}</div></section>` : '';
   const rail = v.co2_bar ? `<aside class="air" aria-label="CO₂: ${text(co2?.value ?? '—')} ${text(co2?.unit ?? '')} ${text(co2?.label ?? t('unavailable'))}"><div class="air-fill"></div>${v.co2_marks && co2 ? (co2.marks ?? []).filter(n => typeof n === 'number' && n >= 0 && n <= 1).map(n => `<i class="mark" style="bottom:${n * 100}%"></i>`).join('') : ''}<div class="air-top">CO₂</div>${v.co2_value ? `<div class="air-value">${text(co2?.value ?? '—')}<small>${text(co2?.unit ?? '')}</small></div>` : ''}</aside>` : '';

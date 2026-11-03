@@ -5,6 +5,7 @@ import { checkAudit } from './audit-browser-check.mjs';
 import { checkCalendars } from './calendar-browser-check.mjs';
 import { checkEnvironment } from './environment-browser-check.mjs';
 import { checkEditor } from './editor-browser-check.mjs';
+import { checkComponentScales } from './component-scale-browser-check.mjs';
 import { startServer } from './serve.mjs';
 await import('./build.mjs');
 await import('./package.mjs');
@@ -125,6 +126,7 @@ try {
   assert.equal((await readFile('dist/tings-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
   await checkEnvironment(page, bounds, settle);
   await checkCalendars(page, bounds, settle);
+  await checkComponentScales(page, settle);
   await checkAudit(page, bounds, settle);
   assert.deepEqual(errors, []);
   console.log(`Browser checks passed: ${layouts} theme/layout combinations, focus stability, tuning extremes, editor/YAML drafts, injection, locale, and lifecycle.`);
