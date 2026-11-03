@@ -2,13 +2,13 @@
 
 This document records stage 2. Calendar integration and persistent Done/Undo have since been implemented; see [stage 3](stage-3.md).
 
-Stage 2 connects the accepted layout to explicitly selected Home Assistant entities. It includes ordered readings, sensor details actions, the configurable CO₂ strip and bands, current weather, and an optional forecast. The visual editor and YAML use the same validation. Calendar integration is stage 3; automatic night activation is stage 4. Existing Home Assistant configuration and devices have not been changed.
+Stage 2 connects the accepted layout to explicitly selected Home Assistant entities. It includes ordered readings, sensor details actions, the configurable CO₂ strip and bands, current weather, and an optional forecast. The visual editor and YAML use the same validation. Calendar integration is stage 3. Existing Home Assistant configuration and devices have not been changed.
 
 ## Try it
 
 Run `npm run preview` and open <http://127.0.0.1:8765>. The preview now supplies mock HA entity states to the real adapters. Change CO₂, choose online/disconnected/missing sources, or enable the forecast in the editor. Calendar events remain synthetic layout fixtures. Sensor taps demonstrate the `hass-more-info` event in a preview dialog; actual HA supplies its own entity-details dialog.
 
-The **Night state** selector exercises the existing explicit night state, including per-reading visibility. It does not activate night automatically. **Remove synthetic data** clears mock entities and calendar fixtures; configured readings retain their slots with dashes. The preview's two/four-reading selector applies example source lists; ordinary editor changes preserve selected sources.
+**Remove synthetic data** clears mock entities and calendar fixtures; configured readings retain their slots with dashes. The preview's two/four-reading selector applies example source lists; ordinary editor changes preserve selected sources.
 
 Build with `npm run build`. The standalone artifact remains `dist/tings-dashboard.js`, with no runtime package dependencies. Schema version remains `1`; stage-1 configurations still work and have no sources selected by default.
 
@@ -25,12 +25,10 @@ readings:
     label: In this room
     precision: auto
     enabled: true
-    night: true
   - entity: sensor.outside_temperature
     label: Outside
     precision: 0
     enabled: true
-    night: true
 co2:
   entity: sensor.room_co2
   minimum: 400
@@ -47,12 +45,12 @@ weather:
   forecast: false
   forecast_type: auto
 features:
-  readings: { enabled: true, night: true }
-  weather: { enabled: true, night: false }
-  co2_bar: { enabled: true, night: false }
-  co2_value: { enabled: true, night: false }
-  co2_status: { enabled: true, night: false }
-  co2_marks: { enabled: true, night: false }
+  readings: { enabled: true }
+  weather: { enabled: true }
+  co2_bar: { enabled: true }
+  co2_value: { enabled: true }
+  co2_status: { enabled: true }
+  co2_marks: { enabled: true }
 ```
 
 Clock, appearance, layout, and group visibility options remain as documented in [stage 1](stage-1.md). Source fields accept an empty string for an unconfigured source, or a matching `sensor.*` / `weather.*` entity ID. The editor offers matching entity suggestions and also accepts an ID that is currently missing. It never infers room or outside sources.
@@ -67,7 +65,6 @@ Clock, appearance, layout, and group visibility options remain as documented in 
 | `label` | `""` | Custom text, up to 100 characters; empty uses HA's entity name, then the friendly name/ID |
 | `precision` | `auto` | Follow HA formatting, or an integer from 0 to 6 decimal places |
 | `enabled` | `true` | Show this reading when the readings section is enabled |
-| `night` | `true` | Also show it at night, if both item and section are enabled for night |
 
 Automatic formatting uses HA's native value/unit parts when available. On older frontends the fallback uses the registry's `display_precision`, then `suggested_display_precision`, then source decimals, bounded to six places. Explicit precision uses HA's number-format preference; units remain those supplied by HA. The card does not convert temperatures or other sensor units. The native parts API and name formatter are documented in the [HA hass-object reference](https://contributors.home-assistant.io/frontend/reference/hass-object/).
 
@@ -90,7 +87,7 @@ The fill fraction is `clamp((raw - minimum) / (maximum - minimum), 0, 1)`. The i
 
 Only sources reporting `ppm` are classified. A missing unit, different unit, unusable value, or disconnected source produces a neutral empty strip, `—`, and an unavailable status, retaining the allocated space and marks. Nothing silently converts a different concentration scale.
 
-The strip, number, status, and marks retain their independent feature/night switches. Number/status remain available when the strip is disabled. Marks need the strip as their visual surface. Default number text sits on an opaque theme background, preserving contrast regardless of fill level or band color. Long status labels occupy one line with accessible full text and a title tooltip.
+The strip, number, status, and marks retain their independent feature switches. Number/status remain available when the strip is disabled. Marks need the strip as their visual surface. Default number text sits on an opaque theme background, preserving contrast regardless of fill level or band color. Long status labels occupy one line with accessible full text and a title tooltip.
 
 ## Weather and forecast
 
@@ -106,7 +103,7 @@ When forecast is enabled, `auto` selects an advertised capability in this order:
 
 The card selects the earliest strictly future period with a valid timestamp and recognized condition. Today's periods display time; tomorrow uses “Tomorrow”; later periods show a localized date. Timezone and 12/24-hour preferences match the clock, including DST/calendar-day boundaries. Missing conditions, ambiguous timestamps without offsets, expired periods, and unavailable forecasts are omitted. There is no narrative prediction or weather-temperature substitution. The summary uses one line with full text accessible when truncated.
 
-A visible card maintains at most one active forecast subscription. Subscription setup times out after 15 seconds and failed/timed-out setup retries after 60 seconds while still eligible. Disabling the forecast/weather section, hiding weather at night, disconnecting HA, changing entity/type/connection, or removing the card invalidates old callbacks and releases the subscription. A late subscription handle is immediately released. Reconnection subscribes anew; presentation-only edits retain the current subscription. Clock ticks re-evaluate future periods without network polling. No forecast data persists through reload.
+A visible card maintains at most one active forecast subscription. Subscription setup times out after 15 seconds and failed/timed-out setup retries after 60 seconds while still eligible. Disabling the forecast/weather section, disconnecting HA, changing entity/type/connection, or removing the card invalidates old callbacks and releases the subscription. A late subscription handle is immediately released. Reconnection subscribes anew; presentation-only edits retain the current subscription. Clock ticks re-evaluate future periods without network polling. No forecast data persists through reload.
 
 ## Editor and module boundaries
 
@@ -118,12 +115,12 @@ Entity suggestions retain their existing options across routine HA state updates
 - `src/forecast.js` owns the subscription lifecycle and stale-callback protection.
 - `src/weather-icons.js` supplies fixed local SVG paths; no remote icon service is used.
 - `src/config.js` supplies scalar and dynamic list fields to both validation and editor controls.
-- `src/card.js` connects HA updates, forecast changes, night rendering state, clock ticks, and native details events to the view. The preview-only presentation override still supplies calendar fixtures.
+- `src/card.js` connects HA updates, forecast changes, clock ticks, and native details events to the view. The preview-only presentation override still supplies calendar fixtures.
 
 ## Verification and remaining acceptance
 
-Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium, selectable through `TINGS_DASHBOARD_CHROMIUM`. Generated images are under ignored `artifacts/stage2-{dark,light,night}-800.png`.
+Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium, selectable through `TINGS_DASHBOARD_CHROMIUM`. Generated images are under ignored `artifacts/stage2-{dark,light}-800.png`.
 
-Verification covers numerical-state rejection; native/fallback number formatting; zero/four reading and invalid configuration boundaries; exact CO₂ thresholds, arbitrary band counts, clamping and neutral failures; forecast selection/DST/expiry; failed, pending and obsolete subscriptions; actual editor/YAML interactions; reading reordering and per-item night visibility; native details events and live-update focus; default CO₂ text contrast at low/intermediate/full heights in all three themes; and the existing 63 layout/theme/viewport combinations. Additional browser cases cover four readings plus forecast at 800×480, 960×600 and 1280×800, small-screen tuning extremes, long labels, German labels, and narrow editor controls.
+Verification covers numerical-state rejection; native/fallback number formatting; zero/four reading and invalid configuration boundaries; exact CO₂ thresholds, arbitrary band counts, clamping and neutral failures; forecast selection/DST/expiry; failed, pending and obsolete subscriptions; actual editor/YAML interactions; reading reordering and per-item visibility; native details events and live-update focus; default CO₂ text contrast at low/intermediate/full heights in both themes; and the existing 42 layout/theme/viewport combinations. Additional browser cases cover four readings plus forecast at 800×480, 960×600 and 1280×800, small-screen tuning extremes, long labels, German labels, and narrow editor controls.
 
 Actual HA hosting and its native details dialog, real weather integration behavior, Lineage kiosk rendering, and readability from 2–3 metres remain unverified. Desktop/mock checks establish the local implementation, not physical-device acceptance. Deployment and migration require a later explicit request.

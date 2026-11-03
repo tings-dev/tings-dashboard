@@ -12,11 +12,11 @@ export class ForecastSource {
   constructor(onChange, { timeout = 15000, retry = 60000 } = {}) {
     this.onChange = onChange; this.timeout = timeout; this.retry = retry; this.epoch = 0; this.items = [];
   }
-  update(config, hass, night, mounted) {
+  update(config, hass, mounted) {
     const entity = hass?.states?.[config.weather.entity];
     const type = forecastType(config.weather, entity);
     const connection = hass?.connection;
-    const active = mounted && connected(hass) && knownCondition(entity?.state) && visibleFeatures(config, night).weather && config.weather.forecast && type && typeof connection?.subscribeMessage === 'function';
+    const active = mounted && connected(hass) && knownCondition(entity?.state) && visibleFeatures(config).weather && config.weather.forecast && type && typeof connection?.subscribeMessage === 'function';
     const key = active ? `${config.weather.entity}:${type}` : '';
     if (key === this.key && (!key || connection === this.connection)) return;
     this.stop(); this.key = key; this.connection = connection;

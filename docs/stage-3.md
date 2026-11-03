@@ -1,6 +1,6 @@
 # Stage 3: multi-calendar agenda, focus, and Done/Undo
 
-Stage 3 connects selected Home Assistant calendars to the dashboard. It merges duplicate occurrences, separates all-day entries, selects starting-soon/in-progress focus, handles partial failures, and persists local dismissals with Undo. The preview uses the same production code against mock calendar API responses. Automatic night activation remains stage 4; actual Home Assistant/device acceptance remains stage 5.
+Stage 3 connects selected Home Assistant calendars to the dashboard. It merges duplicate occurrences, separates all-day entries, selects starting-soon/in-progress focus, handles partial failures, and persists local dismissals with Undo. The preview uses the same production code against mock calendar API responses. Actual Home Assistant/device acceptance remains stage 5.
 
 ## Configure calendars
 
@@ -33,7 +33,6 @@ calendar:
 features:
   calendar:
     enabled: true
-    night: false
 ```
 
 | Field | Default | Supported values and behavior |
@@ -55,7 +54,7 @@ features:
 | `calendar.show_names` | `true` | Show source names and name failed sources in the notice. |
 | `calendar.show_colors` | `true` | Show configured source-color dots independently of names. |
 
-The section's existing `features.calendar.enabled` / `night` switches still apply. Sources are shared between day/night presentations; hiding the section stops its retrieval. All fields are available in both the editor and YAML. Invalid drafts preserve the last valid display and other pending edits. Unknown properties, including properties inside sources, survive editing and YAML round trips.
+The section's `features.calendar.enabled` switch controls its visibility; hiding the section stops its retrieval. All fields are available in both the editor and YAML. Invalid drafts preserve the last valid display and other pending edits. Unknown properties, including properties inside sources, survive editing and YAML round trips.
 
 ## Retrieval and freshness
 
@@ -109,6 +108,6 @@ Run `npm run preview`. Choose **Starting soon**, **In progress**, **One calendar
 - `src/card.js`: adapter lifecycle, clock-driven selection, storage events and guarded actions.
 - `src/view.js` / `src/styles.js`: source identities, notices, controls and height fitting.
 
-Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium through Playwright or `TINGS_DASHBOARD_CHROMIUM`. The suite includes the earlier layout/sensor/weather checks plus exact calendar boundaries; duplicate/partial-failure behavior; date/offset/DST interpretation; lookahead and freshness limits; stale response rejection; persistence, expiry and isolation; editor/YAML validation; keyboard Done/Undo; long translated titles; and combined focus/failure/Undo layouts at the three supported preview sizes. Screenshots are generated under ignored `artifacts/stage3-{dark,light,night}-800.png`.
+Run `npm run check`, `npm test`, and `npm run test:browser`. Browser checks require a compatible Chromium through Playwright or `TINGS_DASHBOARD_CHROMIUM`. The suite includes the earlier layout/sensor/weather checks plus exact calendar boundaries; duplicate/partial-failure behavior; date/offset/DST interpretation; lookahead and freshness limits; stale response rejection; persistence, expiry and isolation; editor/YAML validation; keyboard Done/Undo; long translated titles; and combined focus/failure/Undo layouts at the three supported preview sizes. Screenshots are generated under ignored `artifacts/stage3-{dark,light}-800.png`.
 
-Actual HA calendar integration behavior, card editor hosting, Lineage rendering, and physical readability remain unverified. This stage does not deploy or change the household dashboard. Stage 4 adds automatic night activation; stage 5 performs packaging and device acceptance.
+Actual HA calendar integration behavior, card editor hosting, Lineage rendering, and physical readability remain unverified. This stage does not deploy or change the household dashboard. Stage 5 covers packaging and device acceptance.

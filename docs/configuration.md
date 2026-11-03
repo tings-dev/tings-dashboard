@@ -10,18 +10,9 @@ Use `type: custom:tings-dashboard`. `schema_version` is always `1`; both are fix
 | `calendar.sources` | `[]` | 0–16, no duplicate nonempty IDs |
 | `co2.thresholds` | `[{"value":800,"color":"#c5c691","label":"Raised"},{"value":1000,"color":"#d9b36f","label":"Elevated"},{"value":1400,"color":"#db8d64","label":"High"},{"value":1800,"color":"#c96964","label":"Very high"}]` | Any count, strictly increasing values |
 
-CO₂ maximum must exceed minimum. Night schedule endpoints must differ, even when inactive. Entity night mode requires a stable unique dashboard ID; calendar dismissal also requires it when the section and selected sources are enabled. Globally disabled sections stay disabled at night. Source selection does not enable a section.
+CO₂ maximum must exceed minimum. Calendar dismissal requires a stable unique dashboard ID when the section and selected sources are enabled. Source selection does not enable a section. Each dashboard has one appearance and one set of visibility settings. Create a second dashboard for a different presentation and let Home Assistant control switching.
 
-See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂/weather](stage-2.md), [calendars and persistence](stage-3.md), and [night activation](stage-4.md) for behavioral details and complete examples.
-
-## Night activation
-
-| YAML field | Editor label | Default | Accepted values |
-| --- | --- | --- | --- |
-| `night.mode` | Activation mode | `"off"` | `"off"`, `"schedule"`, `"entity"` |
-| `night.entity` | On/off control entity | `""` | Entity ID with on/off states, or empty |
-| `night.start` | Night starts (Home Assistant time) | `"22:00"` | HH:mm, 00:00–23:59 |
-| `night.end` | Night ends (Home Assistant time) | `"07:00"` | HH:mm, 00:00–23:59 |
+See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂/weather](stage-2.md), and [calendars and persistence](stage-3.md) for behavioral details and complete examples.
 
 ## Calendar behavior
 
@@ -76,8 +67,7 @@ See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂
 
 | YAML field | Editor label | Default | Accepted values |
 | --- | --- | --- | --- |
-| `appearance.day` | Day preset | `"dark"` | `"dark"`, `"light"`, `"night"` |
-| `appearance.night` | Night preset | `"night"` | `"dark"`, `"light"`, `"night"` |
+| `appearance.preset` | Appearance preset | `"dark"` | `"dark"`, `"light"` |
 
 ## Layout
 
@@ -101,27 +91,17 @@ See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂
 | YAML field | Editor label | Default | Accepted values |
 | --- | --- | --- | --- |
 | `features.room.enabled` | Room name: Enabled | `true` | true / false |
-| `features.room.night` | Room name: Show at night | `false` | true / false |
 | `features.clock.enabled` | Clock and date: Enabled | `true` | true / false |
-| `features.clock.night` | Clock and date: Show at night | `true` | true / false |
 | `features.date.enabled` | Date: Enabled | `true` | true / false |
-| `features.date.night` | Date: Show at night | `true` | true / false |
 | `features.readings.enabled` | Sensor readings: Enabled | `false` | true / false |
-| `features.readings.night` | Sensor readings: Show at night | `true` | true / false |
 | `features.weather.enabled` | Weather: Enabled | `false` | true / false |
-| `features.weather.night` | Weather: Show at night | `false` | true / false |
 | `features.calendar.enabled` | Calendar: Enabled | `false` | true / false |
-| `features.calendar.night` | Calendar: Show at night | `false` | true / false |
 | `features.co2_bar.enabled` | CO₂ strip: Enabled | `false` | true / false |
-| `features.co2_bar.night` | CO₂ strip: Show at night | `false` | true / false |
 | `features.co2_value.enabled` | CO₂ number: Enabled | `false` | true / false |
-| `features.co2_value.night` | CO₂ number: Show at night | `false` | true / false |
 | `features.co2_status.enabled` | CO₂ status: Enabled | `false` | true / false |
-| `features.co2_status.night` | CO₂ status: Show at night | `false` | true / false |
 | `features.co2_marks.enabled` | Threshold marks: Enabled | `false` | true / false |
-| `features.co2_marks.night` | Threshold marks: Show at night | `false` | true / false |
 
-## Day color overrides
+## Color overrides
 
 | YAML field | Editor label | Default | Accepted values |
 | --- | --- | --- | --- |
@@ -131,17 +111,6 @@ See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂
 | `appearance.colors.accent` | Accent | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
 | `appearance.colors.divider` | Dividers | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
 | `appearance.colors.rail` | Empty CO₂ strip | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
-
-## Night color overrides
-
-| YAML field | Editor label | Default | Accepted values |
-| --- | --- | --- | --- |
-| `appearance.night_colors.background` | Background | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
-| `appearance.night_colors.text` | Primary text | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
-| `appearance.night_colors.muted` | Secondary text | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
-| `appearance.night_colors.accent` | Accent | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
-| `appearance.night_colors.divider` | Dividers | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
-| `appearance.night_colors.rail` | Empty CO₂ strip | `""` | Empty (inherit), #RRGGBB or #RRGGBBAA |
 
 ## Calendar sources
 
@@ -160,7 +129,6 @@ See [installation](installation.md), [clock/layout](stage-1.md), [readings/CO₂
 | `readings[].label` | Label (empty uses entity name) | `""` | Up to 100 characters |
 | `readings[].precision` | Decimal places (auto or 0–6) | `"auto"` | auto or integer 0–6 |
 | `readings[].enabled` | Enabled | `true` | true / false |
-| `readings[].night` | Show at night | `true` | true / false |
 
 ## CO₂ thresholds (ascending ppm)
 

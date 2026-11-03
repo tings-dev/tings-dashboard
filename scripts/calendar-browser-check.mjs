@@ -63,9 +63,9 @@ export async function checkCalendars(page, bounds, settle) {
   assert.equal(await card.locator('.focus h2').textContent(), 'Edited meeting', 'fresh duplicate keeps focus');
   for (const viewport of ['800,480', '960,600', '1280,800']) {
     await page.selectOption('#viewport', viewport);
-    for (const theme of ['dark', 'light', 'night']) {
+    for (const theme of ['dark', 'light']) {
       // Set presentation state directly: preview appearance toolbar also switches its source fixture.
-      await page.evaluate(theme => { const c = preview.config; c.appearance.day = theme; c.features.calendar.night = true; preview.commit(c); preview.card.night = false; }, theme);
+      await page.evaluate(theme => { const c = preview.config; c.appearance.preset = theme; preview.commit(c); }, theme);
       await settle(); assert.deepEqual(await bounds(), [], `${viewport}/${theme}/focus+partial failure+Undo`);
       if (viewport === '800,480') await page.locator('#frame').screenshot({ path: `artifacts/stage3-${theme}-800.png`, animations: 'disabled' });
     }

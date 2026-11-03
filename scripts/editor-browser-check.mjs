@@ -29,7 +29,6 @@ export async function checkEditor(page) {
     delete states['sensor.light'];
     states['sensor.room_temperature'].attributes.friendly_name = 'Renamed room sensor';
     states['sensor.added'] = { entity_id: 'sensor.added', state: '42', attributes: { friendly_name: 'Added sensor' } };
-    states['input_boolean.night'] = { entity_id: 'input_boolean.night', state: 'off', attributes: {} };
     preview.editor.hass = { ...preview.hass, states };
   });
   const choices = id => page.locator(`#editor #entities-${id} option`).evaluateAll(options => options.map(option => [option.value, option.label]));
@@ -40,7 +39,9 @@ export async function checkEditor(page) {
   assert.ok(sensors.every(([id]) => id.startsWith('sensor.')));
   assert.ok((await choices('weather')).every(([id]) => id.startsWith('weather.')));
   assert.ok((await choices('calendar')).every(([id]) => id.startsWith('calendar.')));
-  assert.ok((await choices('any')).some(([id]) => id === 'input_boolean.night'));
+  assert.equal(await page.locator('#editor #entities-any').count(), 0);
+  assert.equal(await page.locator('#editor [data-path*="night"]').count(), 0);
+  assert.deepEqual(await page.locator('#editor [data-path="appearance.preset"] option').evaluateAll(options => options.map(option => option.value)), ['dark', 'light']);
   await sensor.fill('sensor.added');
   assert.equal(await page.evaluate(() => preview.config.readings[0].entity), 'sensor.added');
   await page.evaluate(() => {

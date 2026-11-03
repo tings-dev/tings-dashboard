@@ -1,6 +1,6 @@
 # Room information dashboard
 
-Status: accepted. The user accepted Q1–Q39, the consolidated design, and the staged implementation plan. Stage 1 was subsequently requested and is implemented locally; see [stage-1 notes](stage-1.md). Later stages wait for separate requests.
+Status: accepted, with built-in night mode removed by user request on 2026-11-03. The user accepted Q1–Q39, the consolidated design, and the staged implementation plan. Stage 1 was subsequently requested and is implemented locally; see [stage-1 notes](stage-1.md). Later stages wait for separate requests.
 
 Build a configurable Home Assistant custom card for landscape Echo Show 5 and Show 8 devices running Lineage. It should communicate time and room CO₂ from approximately 2–3 metres, with temperatures, weather, and calendar details available at a closer glance. A room without a calendar or a CO₂ sensor must feel deliberately designed, not incomplete.
 
@@ -28,17 +28,16 @@ Every feature is configurable and independently disableable, preserving its sett
 | Enabled calendar has no events | Retain its space and show an explicit empty state |
 | Enabled sensor temporarily unavailable | Retain its position and label, show “—” |
 
-Layout reflows on configuration or day/night visibility changes. It does not reflow simply because live data becomes empty or unavailable. Disabled calendar focus modes do not disable the calendar feature itself.
+Layout reflows on configuration changes. It does not reflow simply because live data becomes empty or unavailable. Disabled calendar focus modes do not disable the calendar feature itself.
 
 ### Appearance presets
 
-Each dashboard instance selects its own appearance and overrides. Day and night settings are independent.
+Each dashboard instance selects its own appearance and overrides. Each instance has one set of colors and enabled sections.
 
 | Preset | Background | Primary text | Intended appearance |
 | --- | --- | --- | --- |
 | Evergreen dark | `#111917` | `#f1eee6` | Quiet dark default |
 | Warm-paper light | `#f4f0e7` | `#273b34` | Warm light display |
-| Muted night | `#090e0d` | `#aeb6aa` | Subdued nighttime display |
 
 Colors, labels, font sizes, column proportions, strip width, and spacing are configurable within supported bounds. Positioning follows the layout, with no freely draggable elements. Language and formatting follow Home Assistant preferences by default, with explicit language and clock/date format overrides.
 
@@ -76,7 +75,7 @@ Unavailable or disconnected CO₂ is neutral and explicitly unavailable; it is n
 
 ## 3. Sensor readings and weather
 
-Support **zero to four** explicitly selected numerical readings in a configurable order, with individual visibility, nighttime visibility, and optional custom labels. Four readings use two rows. More than four is a configuration error, never silently truncated.
+Support **zero to four** explicitly selected numerical readings in a configurable order, with individual visibility and optional custom labels. Four readings use two rows. More than four is a configuration error, never silently truncated.
 
 Readings can include room temperature, outside temperature, humidity, or other numerical sensors. Do not infer a room or outside source. Units and precision follow Home Assistant by default; allow a per-reading precision override. A missing/unusable reading shows “—” while preserving its label and position. Do not show disconnected readings as current.
 
@@ -119,21 +118,15 @@ Distinguish an empty calendar from a failed calendar. Successfully refreshed sou
 
 Cached copies must not make ended events eligible again or bypass the configured lookahead. If a merged occurrence still has a fresh copy from another source, that fresh copy remains eligible. Label connection problems without replacing the whole dashboard with an error screen.
 
-## 5. Night mode
+## 5. Separate dashboards
 
-Night mode stays off until configured. Select either a schedule in Home Assistant's timezone, including intervals crossing midnight, or a Home Assistant on/off entity. Entity control is the preferred household setup, allowing automations to decide when night mode applies.
-
-Every feature has nighttime visibility independent of its daytime settings. A globally disabled feature remains disabled at night. Night-hidden content releases its space. Events or elevated CO₂ do not override these choices. Returning to daytime uses current data.
-
-The initial night preset keeps **clock, date, and selected readings** and hides room name, weather, calendar, and CO₂ strip/number/status. Each can be changed. Night appearance starts with the muted-night theme and preserves daytime appearance settings.
-
-If the controlling entity becomes unavailable, retain the last known mode, including after a reload. With no prior state, use night presentation until a valid state arrives. Surface the control problem in the editor. Device backlight control is separate from the card's appearance and is not part of this implementation.
+Each dashboard has one appearance and one set of enabled sections. Create a second dashboard for a different evening presentation and let Home Assistant control switching. Built-in night activation, night visibility, persisted mode and separate night colors were removed on 2026-11-03.
 
 ## 6. Configuration and implementation boundaries
 
 Develop a new custom card in this repository with its own configuration. Keep the existing `echo-show-card` available for comparison and rollback. Migrating individual dashboards is a later explicit action; do not automatically rewrite existing configuration.
 
-The visual editor and YAML must expose the same supported options. Keep household entity selections out of reusable defaults. Preserve disabled settings and separate normal visibility from nighttime visibility. Group controls by the content they affect, with clearly identified appearance and night settings.
+The visual editor and YAML must expose the same supported options. Keep household entity selections out of reusable defaults. Preserve disabled settings. Group controls by the content they affect, with clearly identified appearance settings.
 
 Validation must reject invalid input with actionable field messages: examples include a reversed indicator range, repeated/unsorted thresholds, non-finite numeric values, unusable colors, and more than four readings. Do not silently ignore requested readings or reinterpret invalid configuration as valid. Invalid drafts must not erase existing settings.
 
@@ -141,7 +134,7 @@ Validation must reject invalid input with actionable field messages: examples in
 
 Choose exact configuration key names, module boundaries, safe numerical tuning limits, refresh/retry timing, and storage details during each implementation stage. Preserve the accepted visible behavior. Document the chosen defaults and validate editor/YAML parity, data freshness, instance isolation, and layout fit. A choice that would alter the accepted behavior returns to design review.
 
-The study's 6–12% strip-width and 85–110% clock-size controls are exploratory ranges, not a promise that every combination fits every viewport. Determine supported ranges through layout checks. Clock/day-night transitions must preserve the intended hierarchy; no tuning combination may silently hide essential configured content.
+The study's 6–12% strip-width and 85–110% clock-size controls are exploratory ranges, not a promise that every combination fits every viewport. Determine supported ranges through layout checks. Clock updates must preserve the intended hierarchy; no tuning combination may silently hide essential configured content.
 
 Accessibility work belongs in the relevant stage: clear labels, keyboard-operable controls, visible focus, usable touch targets, textual status equivalents, two-line overflow with access to full titles, and contrast checks for default palettes. Reduced-motion behavior is already an accepted requirement. Do not claim the prototype itself establishes production accessibility compliance.
 
@@ -151,13 +144,13 @@ Open the [refined option-A study](../prototypes/dashboard-prototype.html) direct
 
 | Example | Snapshot |
 | --- | --- |
-| Dark / light / night | [Dark](../prototypes/a-dark.png), [light](../prototypes/a-light.png), [night](../prototypes/a-night.png) |
+| Dark / light | [Dark](../prototypes/a-dark.png), [light](../prototypes/a-light.png) |
 | Reduced content | [No calendar](../prototypes/a-no-calendar.png), [no CO₂](../prototypes/a-no-co2.png) |
 | 800×480 | [Agenda](../prototypes/a-small.png), [focus](../prototypes/a-small-focus.png), [four readings](../prototypes/a-small-four-readings.png), [disconnected](../prototypes/a-small-offline.png) |
 
-Local Chromium smoke checks covered 39 combinations of viewport, event scenario, and room preset, with no JavaScript errors or measured content overflow. Clock geometry stayed fixed across event scenarios. Done/Undo, a synthetic reading dialog, CO₂ clamping, and night visibility were exercised. A follow-up check confirmed unavailable readings retain their geometry and four readings leave space for the clock. These are prototype checks, not production tests.
+Local Chromium smoke checks covered 39 combinations of viewport, event scenario, and room preset, with no JavaScript errors or measured content overflow. Clock geometry stayed fixed across event scenarios. Done/Undo, a synthetic reading dialog, CO₂ clamping were exercised. A follow-up check confirmed unavailable readings retain their geometry and four readings leave space for the clock. These are prototype checks, not production tests.
 
-Synthetic test sizes are 1280×800, 960×600, and 800×480. They do not establish actual kiosk CSS viewports, device brightness, or readability at 2–3 metres. Prototype state is in memory; persistence, automatic scheduling, real forecast data, and actual calendar retrieval are not implemented. Production code should be built around the approved contract rather than treating the disposable study as a finished card.
+Synthetic test sizes are 1280×800, 960×600, and 800×480. They do not establish actual kiosk CSS viewports, device brightness, or readability at 2–3 metres. Prototype state is in memory; persistence, real forecast data, and actual calendar retrieval are not implemented. Production code should be built around the approved contract rather than treating the disposable study as a finished card.
 
 ## 8. Final acceptance — Q37–Q39
 

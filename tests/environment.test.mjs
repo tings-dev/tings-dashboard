@@ -21,14 +21,13 @@ test('HA native value/unit parts are honored; explicit precision uses HA number 
   assert.equal(formatReading(state('0.00', '%'), {}, preferences).value, '0.00');
   assert.equal(formatReading(entity, { locale: { number_format: 'none' } }, preferences, 1).value, '1234.6');
 });
-test('ordered readings preserve slots and labels on failure; item night/disabled flags filter deliberately', () => {
-  const config = normalizeConfig({ readings: [{ entity: 'sensor.test', label: 'Inside' }, { entity: 'sensor.missing', label: 'Outside', night: false }, { entity: 'sensor.hidden', enabled: false }] });
-  const present = h => environmentPresentation(config, h, false, preferences, t, [], new Date()).readings;
+test('ordered readings preserve slots and labels on failure; disabled items filter deliberately', () => {
+  const config = normalizeConfig({ readings: [{ entity: 'sensor.test', label: 'Inside' }, { entity: 'sensor.missing', label: 'Outside' }, { entity: 'sensor.hidden', enabled: false }] });
+  const present = h => environmentPresentation(config, h, preferences, t, [], new Date()).readings;
   assert.deepEqual(present(hass('21.4')).map(r => [r.label, r.value, r.inspectable]), [['Inside', '21.4', true], ['Outside', '—', false]]);
   assert.deepEqual(present({ ...hass('21.4'), connected: false }).map(r => [r.label, r.value]), [['Inside', '—'], ['Outside', '—']]);
   assert.equal(present(hass('unavailable'))[0].inspectable, true);
-  assert.equal(environmentPresentation(config, hass('21'), true, preferences, t, [], new Date()).readings.length, 1);
-  assert.deepEqual(environmentPresentation(normalizeConfig({}), {}, false, preferences, t, [], new Date()).readings, []);
+  assert.deepEqual(environmentPresentation(normalizeConfig({}), {}, preferences, t, [], new Date()).readings, []);
 });
 test('CO₂ equality enters each new band using raw values, independently of display rounding', () => {
   for (const [value, label] of [[799.99, 'Low'], [800, 'Raised'], [999.99, 'Raised'], [1000, 'Elevated'], [1399.99, 'Elevated'], [1400, 'High'], [1799.99, 'High'], [1800, 'Very high']]) {
@@ -69,7 +68,7 @@ test('forecast selects the earliest strictly future usable period, expires natur
 test('weather is independent of outside temperature and forecast defaults off', () => {
   const config = normalizeConfig({ readings: [{ entity: 'sensor.test' }], weather: { entity: 'weather.home' }, features: { weather: { enabled: true } } });
   const h = hass('12'); h.states['weather.home'] = { state: 'sunny' };
-  const present = (c, value) => environmentPresentation(c, value, false, preferences, t, [{ datetime: '2026-11-01T17:00:00Z', condition: 'rainy' }], new Date('2026-11-01T13:00:00Z'));
+  const present = (c, value) => environmentPresentation(c, value, preferences, t, [{ datetime: '2026-11-01T17:00:00Z', condition: 'rainy' }], new Date('2026-11-01T13:00:00Z'));
   assert.equal(present(config, h).weather.text, 'Sunny'); assert.equal(present(config, h).weather.forecast, '');
   assert.equal(present(config, hass('12')).readings[0].value, '12'); assert.equal(present(config, hass('12')).weather.text, 'Weather unavailable');
   config.weather.forecast = true; assert.equal(present(config, h).weather.forecast, '18:00 · Rain');

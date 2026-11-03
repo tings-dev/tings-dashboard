@@ -8,9 +8,9 @@ export class CalendarSource {
     this.onChange = onChange; this.now = now; this.refresh = refresh; this.timeout = timeout;
     this.records = new Map(); this.active = false;
   }
-  update(config, hass, night, mounted, timeZone = 'UTC') {
+  update(config, hass, mounted, timeZone = 'UTC') {
     const entities = config.calendar.sources.filter(s => s.enabled && s.entity).map(s => s.entity);
-    const active = mounted && visibleFeatures(config, night).calendar && connected(hass) && typeof hass?.callApi === 'function' && entities.length > 0;
+    const active = mounted && visibleFeatures(config).calendar && connected(hass) && typeof hass?.callApi === 'function' && entities.length > 0;
     const changed = this.timeZone !== timeZone || this.lookahead !== config.calendar.lookahead_days || this.connection !== hass?.connection;
     this.timeZone = timeZone; this.hass = hass; this.lookahead = config.calendar.lookahead_days; this.connection = hass?.connection;
     for (const [id, record] of this.records) if (!entities.includes(id)) { this.cancel(record); this.records.delete(id); }

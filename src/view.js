@@ -4,8 +4,8 @@ export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => 
 const text = escapeHTML;
 export const EMPTY_PRESENTATION = Object.freeze({ readings: [], calendar: { state: 'unavailable', items: [] }, weather: null, co2: null });
 // Adapters format source data; the view only lays out escaped presentation values.
-export function renderView(root, config, presentation, night, t) {
-  const v = visibleFeatures(config, night);
+export function renderView(root, config, presentation, t) {
+  const v = visibleFeatures(config);
   const data = { ...EMPTY_PRESENTATION, ...presentation };
   const co2 = data.co2;
   v.readings = v.readings && !!data.readings?.length;
@@ -13,7 +13,7 @@ export function renderView(root, config, presentation, night, t) {
   const hasHome = hasRoom || v.clock || v.date || v.readings || v.weather || (!v.co2_bar && (v.co2_value || v.co2_status));
   root.className = ['screen', !v.co2_bar ? 'no-rail' : '', v.calendar ? 'has-calendar' : 'solo', !v.clock ? 'no-clock' : '', !v.clock && !v.date && !v.calendar ? 'readings-only' : '', v.calendar && !hasHome ? 'calendar-only' : ''].join(' ');
   root.lang = config.language === 'auto' ? '' : config.language;
-  for (const [key, value] of Object.entries(palette(config, night))) root.style.setProperty(`--${key}`, value);
+  for (const [key, value] of Object.entries(palette(config))) root.style.setProperty(`--${key}`, value);
   root.style.setProperty('--rail-width', `${config.layout.rail_width}%`);
   root.style.setProperty('--left-width', `${config.layout.left_width}%`);
   root.style.setProperty('--caption-space', v.co2_bar && v.co2_status ? '10px' : '0px');

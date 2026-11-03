@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { checkAudit } from './audit-browser-check.mjs';
-import { checkNight } from './night-browser-check.mjs';
 import { checkCalendars } from './calendar-browser-check.mjs';
 import { checkEnvironment } from './environment-browser-check.mjs';
 import { checkEditor } from './editor-browser-check.mjs';
@@ -42,7 +41,7 @@ try {
     await page.selectOption('#viewport', viewport);
     for (const preset of ['full', 'no-calendar', 'no-co2', 'clock', 'readings', 'calendar', 'blank']) {
       await page.selectOption('#preset', preset);
-      for (const appearance of ['dark', 'light', 'night']) {
+      for (const appearance of ['dark', 'light']) {
         await page.selectOption('#appearance', appearance); await settle();
         assert.deepEqual(await bounds(), [], `${viewport}/${preset}/${appearance}`); layouts++;
         if (viewport === '800,480' && preset === 'full') await page.locator('#frame').screenshot({ path: `artifacts/stage1-${appearance}-800.png`, animations: 'disabled' });
@@ -94,8 +93,8 @@ try {
   await editor.locator('[data-path="appearance.colors.background"]').fill('#112233');
   await page.waitForFunction(() => getComputedStyle(preview.card.shadowRoot.querySelector('.screen')).backgroundColor === 'rgb(17, 34, 51)');
   assert.equal(await card.locator('.screen').evaluate(e => getComputedStyle(e).backgroundColor), 'rgb(17, 34, 51)');
-  // Real YAML application and editor emission retain independent night/unknown settings.
-  await page.locator('#yaml').fill('type: custom:tings-dashboard\nroom_name: "<img src=x onerror=alert(1)>"\ntime_format: "12"\nlanguage: en-US\nfeatures:\n  calendar:\n    enabled: false\n    night: true\n    future_source: calendar.example\nview_layout:\n  position: main\n');
+  // Real YAML application and editor emission retain unknown settings.
+  await page.locator('#yaml').fill('type: custom:tings-dashboard\nroom_name: "<img src=x onerror=alert(1)>"\ntime_format: "12"\nlanguage: en-US\nfeatures:\n  calendar:\n    enabled: false\n    future_source: calendar.example\nview_layout:\n  position: main\n');
   await page.locator('#apply').click();
   assert.equal(await card.locator('.room img').count(), 0);
   assert.match(await card.locator('.room').textContent(), /<img/);
@@ -104,8 +103,7 @@ try {
   assert.equal(await page.evaluate(() => preview.config.features.calendar.future_source), 'calendar.example');
   assert.equal(await page.evaluate(() => preview.config.view_layout.position), 'main');
   await editor.locator('[data-path="features.calendar.enabled"]').uncheck();
-  await page.selectOption('#appearance', 'night');
-  assert.equal(await card.locator('.calendar').count(), 0, 'night true cannot enable globally disabled feature');
+  assert.equal(await card.locator('.calendar').count(), 0, 'globally disabled feature stays hidden');
   await page.locator('#yaml').fill('layout:\n  clock_scale: invalid\n'); await page.locator('#apply').click();
   assert.match(await page.locator('#yaml-error').textContent(), /layout.clock_scale/);
   assert.equal(await card.locator('.period').textContent(), 'PM');
@@ -127,7 +125,6 @@ try {
   assert.equal((await readFile('dist/tings-dashboard.js', 'utf8')).includes('Walk by the lake'), false, 'fixtures must not ship in card');
   await checkEnvironment(page, bounds, settle);
   await checkCalendars(page, bounds, settle);
-  await checkNight(page, bounds, settle);
   await checkAudit(page, bounds, settle);
   assert.deepEqual(errors, []);
   console.log(`Browser checks passed: ${layouts} theme/layout combinations, focus stability, tuning extremes, editor/YAML drafts, injection, locale, and lifecycle.`);

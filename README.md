@@ -1,6 +1,6 @@
 # Tings Dashboard
 
-Stages 1–4 are implemented: a Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light/night appearance, and a visual editor sharing validation with YAML. Automatic night activation supports HA-timezone schedules and persistent on/off entity control. Stage 5 software audit and release preparation are implemented; physical device acceptance remains pending. See [stage 5 results](docs/stage-5.md).
+A Home Assistant custom card with a live clock/date, up to four selected sensor readings, configurable CO₂ bands and strip, current weather and optional forecast, a multi-calendar agenda with event focus and persistent local Done/Undo, dark/light appearance, and a visual editor sharing validation with YAML. Stage 5 software audit and release preparation are implemented; physical device acceptance remains pending. See [stage 5 results](docs/stage-5.md).
 
 ```sh
 npm ci
@@ -15,6 +15,8 @@ See [calendar configuration and Done/Undo](docs/stage-3.md), [sensor, CO₂, and
 
 The [accepted design](docs/dashboard-design.md) records decisions Q1–Q39. The [implementation plan](docs/implementation-plan.md) tracks the five delivery stages. The [interview record](docs/design-interview.md) preserves the numbered decisions and original alternatives. No existing Home Assistant configuration or devices have been changed.
 
+Each dashboard has one appearance preset and one set of enabled sections. For a reduced evening display, create a second dashboard and let Home Assistant control switching. Use a different `instance_id` for each card. Night activation, per-feature night switches and separate night colors have been removed. Existing `appearance.day` values carry over to `appearance.preset` (`dark` or `light`); a former `night` preset falls back to `dark`. Existing color overrides and entity selections are retained; removed settings are dropped from editor output.
+
 ## Design studies
 
 Start with the [interactive option-A refinement](prototypes/dashboard-prototype.html): open the HTML file directly in a browser. Everything is local and uses synthetic data.
@@ -25,9 +27,9 @@ Alternatively, from this directory:
 python3 -m http.server 8765 --bind 127.0.0.1 --directory prototypes
 ```
 
-Then open <http://localhost:8765/dashboard-prototype.html>. Switch dark/light/night appearance using the bottom arrows. Choose a room example, event scenario, and viewport above the display; expand the settings to change individual day/night visibility, readings, CO₂, clock size, and strip width.
+Then open <http://localhost:8765/dashboard-prototype.html>. Switch dark/light appearance using the bottom arrows. Choose a room example, event scenario, and viewport above the display; expand the settings to change individual visibility, readings, CO₂, clock size, and strip width.
 
-- [Dark](prototypes/a-dark.png), [light](prototypes/a-light.png), and [night](prototypes/a-night.png)
+- [Dark](prototypes/a-dark.png) and [light](prototypes/a-light.png)
 - [No calendar](prototypes/a-no-calendar.png) and [no CO₂](prototypes/a-no-co2.png)
 - [Small-screen agenda](prototypes/a-small.png), [event focus](prototypes/a-small-focus.png), and [disconnected state](prototypes/a-small-offline.png)
 

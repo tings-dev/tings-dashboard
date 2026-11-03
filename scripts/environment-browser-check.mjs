@@ -31,9 +31,8 @@ export async function checkEnvironment(page, bounds, settle) {
   await page.selectOption('#source-state', 'missing'); assert.equal(await card.locator('.reading:disabled').count(), 4);
   await page.selectOption('#source-state', 'online');
   // Default text remains on an opaque surface at all indicator levels.
-  for (const theme of ['dark', 'light', 'night']) {
+  for (const theme of ['dark', 'light']) {
     await page.selectOption('#appearance', theme);
-    if (theme === 'night') await page.evaluate(() => { const c = preview.config; for (const f of ['co2_bar', 'co2_value', 'co2_status', 'co2_marks', 'weather']) c.features[f].night = true; preview.commit(c); });
     for (const [raw, height, color] of [['250', '0%', '#8daea0'], ['1000', '37.5%', '#d9b36f'], ['2800', '100%', '#c96964']]) {
       await page.locator('#co2-demo').fill(raw); await settle();
       const actual = await card.locator('.screen').evaluate(e => [e.style.getPropertyValue('--air-fill'), e.style.getPropertyValue('--air-color')]);
@@ -53,7 +52,7 @@ export async function checkEnvironment(page, bounds, settle) {
   await page.waitForFunction(() => preview.card.shadowRoot.querySelector('.forecast')?.textContent.includes('Rain'));
   for (const viewport of ['800,480', '960,600', '1280,800']) {
     await page.selectOption('#viewport', viewport);
-    for (const theme of ['dark', 'light', 'night']) {
+    for (const theme of ['dark', 'light']) {
       await page.selectOption('#appearance', theme); await settle(); assert.deepEqual(await bounds(), [], `${viewport}/${theme}/four readings + forecast`);
       if (viewport === '800,480') await page.locator('#frame').screenshot({ path: `artifacts/stage2-${theme}-800.png`, animations: 'disabled' });
     }
@@ -90,7 +89,6 @@ export async function checkEnvironment(page, bounds, settle) {
   await second.getByRole('button', { name: 'Move up', exact: true }).click();
   assert.equal(await page.evaluate(() => preview.config.readings[0].entity), 'sensor.outside_temperature');
   await editor.locator('[data-path="readings.0.enabled"]').uncheck(); assert.equal(await card.locator('.reading').count(), 3);
-  await editor.locator('[data-path="readings.1.night"]').uncheck(); await page.selectOption('#appearance', 'night'); assert.equal(await card.locator('.reading').count(), 2);
   await page.selectOption('#appearance', 'dark');
   await editor.getByRole('button', { name: 'Add threshold', exact: true }).click();
   assert.equal(await page.evaluate(() => preview.config.co2.thresholds.length), 5);
@@ -139,7 +137,7 @@ export async function checkEnvironment(page, bounds, settle) {
   assert.equal(await page.evaluate(() => stops), 2);
   assert.equal(await card.locator('.reading strong').first().textContent(), '—°C');
   await page.evaluate(() => { preview.card.hass = testHass; }); await page.waitForFunction(() => subscriptions.length === 3);
-  await page.evaluate(() => { const c = preview.config; c.features.weather.night = false; preview.commit(c); preview.card.night = true; });
+  await page.evaluate(() => { const c = preview.config; c.features.weather.enabled = false; preview.commit(c); });
   assert.equal(await page.evaluate(() => stops), 3);
   await page.setViewportSize({ width: 400, height: 900 }); await settle();
   assert.equal(await editor.evaluate(e => { const r = e.getBoundingClientRect(); return [...e.shadowRoot.querySelectorAll('input,select,fieldset,button')].some(x => x.getBoundingClientRect().right > r.right + 1); }), false);

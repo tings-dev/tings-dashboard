@@ -52,10 +52,10 @@ export function forecastSummary(forecasts, now, preferences, t) {
     : distance === 1 ? t('tomorrow') : new Intl.DateTimeFormat(preferences.locale, { timeZone: preferences.timeZone, month: 'short', day: 'numeric' }).format(next.date);
   return `${when} · ${t(`condition_${next.condition}`)}`;
 }
-export function environmentPresentation(config, hass, night, preferences, t, forecasts, now) {
-  const v = visibleFeatures(config, night);
+export function environmentPresentation(config, hass, preferences, t, forecasts, now) {
+  const v = visibleFeatures(config);
   const readings = config.readings.flatMap((source, index) => {
-    if (!source.enabled || (night && !source.night)) return [];
+    if (!source.enabled) return [];
     const entity = hass?.states?.[source.entity];
     let name;
     try { name = entity && hass?.formatEntityName?.(entity); } catch { /* Friendly name fallback. */ }

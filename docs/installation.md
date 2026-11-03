@@ -37,7 +37,7 @@ lovelace:
       type: module
 ```
 
-After changing YAML resources, reload them using `lovelace.reload_resources`, then reload the browser. Update the URL's version query when replacing a bundle. Register only one copy of the card; JavaScript custom element definitions cannot be replaced in a running page. Restoring the old bundle/resource and reloading the browser is the resource rollback. Restore the old dashboard as needed. A dashboard's `instance_id` should remain unchanged for its local Done/Undo and night state.
+After changing YAML resources, reload them using `lovelace.reload_resources`, then reload the browser. Update the URL's version query when replacing a bundle. Register only one copy of the card; JavaScript custom element definitions cannot be replaced in a running page. Restoring the old bundle/resource and reloading the browser is the resource rollback. Restore the old dashboard as needed. A dashboard's `instance_id` should remain unchanged for its local Done/Undo state.
 
 Home Assistant's [resource registration documentation](https://contributors.home-assistant.io/frontend/custom-ui/resources/) describes the `www` → `/local/` mapping and module registration. Files served from `www` are public to anyone who can reach HA; keep credentials and household configuration out of that directory.
 
@@ -68,12 +68,12 @@ readings:
 co2:
   entity: sensor.example_co2
 features:
-  readings: { enabled: true, night: true }
-  co2_bar: { enabled: true, night: false }
-  co2_value: { enabled: true, night: false }
-  co2_status: { enabled: true, night: false }
+  readings: { enabled: true }
+  co2_bar: { enabled: true }
+  co2_value: { enabled: true }
+  co2_status: { enabled: true }
 ```
 
-Replace the example IDs with your own. The ID must be unique per independent card, stable through edits and reloads. Room/clock/date are enabled by default; data sections require explicit enabling. Use the [complete configuration reference](configuration.md) and the linked stage documents for calendars, forecast, night activation, appearance and visibility.
+Replace the example IDs with your own. The ID must be unique per independent card, stable through edits and reloads. Room/clock/date are enabled by default; data sections require explicit enabling. Use the [complete configuration reference](configuration.md) and the linked stage documents for calendars, forecast, appearance and visibility.
 
 For a full-screen kiosk, put the card in a dashboard panel view, or supply a fixed `layout.height` suited to the actual content area. The default `viewport` height subtracts HA's `--header-height` if present; it does not configure your kiosk header, navigation bars or display scaling. Measure the actual card area on each device before accepting a layout.

@@ -1,6 +1,6 @@
 # Room dashboard design interview
 
-Status: completed decision history. Q1–Q39 and the design are accepted. The consolidated contract is in [dashboard-design.md](dashboard-design.md).
+Status: completed decision history. The nighttime visibility decisions (Q14–Q15, Q25, Q33) and night preset in Q32 below were superseded on 2026-11-03: use separately configured dashboards with Home Assistant controlling switching; built-in night mode and its settings have been removed. Q1–Q39 and the design are accepted. The consolidated contract is in [dashboard-design.md](dashboard-design.md).
 
 ## Confirmed brief
 
@@ -59,7 +59,7 @@ The accepted CO₂ treatment is a vertical indicator at the right edge: minimum 
 
 ## Layout studies
 
-Open [the refined option-A prototype](../prototypes/dashboard-prototype.html) in a browser. It has no dependencies or Home Assistant connection. Switch appearances with the bottom controls or left/right arrows; choose room examples, event scenarios, and viewport sizes. Expand the settings for feature visibility, separate nighttime visibility, CO₂ value, strip width, clock size, and two/four reading examples. `?variant=dark`, `light`, and `night` select appearances; `preset=no-calendar` and `preset=no-co2` demonstrate reduced content.
+Open [the refined option-A prototype](../prototypes/dashboard-prototype.html) in a browser. It has no dependencies or Home Assistant connection. Switch appearances with the bottom controls or left/right arrows; choose room examples, event scenarios, and viewport sizes. Expand the settings for feature visibility, CO₂ value, strip width, clock size, and two/four reading examples. `?variant=dark` and `light` select appearances; `preset=no-calendar` and `preset=no-co2` demonstrate reduced content.
 
 The [original A/B/C comparison](../prototypes/layout-comparison-prototype.html) is preserved as the source of the initial layout decision:
 
@@ -69,7 +69,7 @@ The [original A/B/C comparison](../prototypes/layout-comparison-prototype.html) 
 | B — Open horizon | Clock dominates the upper area; upcoming events form a bottom strip | A less dashboard-like, open composition | Only a few events fit; the horizontal reading order needs evaluation |
 | C — Event poster | Clock and temperature stack left; large event title right; broad CO₂ column | Readable event focus and a more expressive air indicator | Event title and clock compete for attention; fewer upcoming items |
 
-The refined study keeps enabled clock/readings in place across event modes. It demonstrates light, dark, and night appearances, disabled sections reclaiming space, separate day/night visibility, unavailable readings, partial calendar failure, a two-line title limit, and smaller-screen agenda capacity. The number and status label can be hidden independently of the CO₂ strip. Sensor taps and Done/Undo have local demonstrations; their real Home Assistant behavior and persistence are not implemented.
+The refined study keeps enabled clock/readings in place across event modes. It demonstrates light and dark appearances, disabled sections reclaiming space, unavailable readings, partial calendar failure, a two-line title limit, and smaller-screen agenda capacity. The number and status label can be hidden independently of the CO₂ strip. Sensor taps and Done/Undo have local demonstrations; their real Home Assistant behavior and persistence are not implemented.
 
 ### Accepted visual decisions — round 5, Q32–Q36
 
@@ -127,7 +127,7 @@ Not an approved plan; refine after the interview.
 
 Initial local Chromium exploration rendered all three layouts in upcoming, starting-soon, in-progress, long-title, and empty modes at the three study sizes, with no JavaScript errors. Default screenshots are saved alongside the prototype. Layout arrows update the URL, the CO₂ fill reaches zero at the example minimum, and the threshold selector changes the example palette. The prototype scales its composition and text for smaller viewports; this is not yet an accepted responsive strategy.
 
-The refined option-A study instead lays out at the selected viewport dimensions and scales only its browser preview frame. Local Chromium checks covered 39 combinations of viewport, event scenario, and room preset with no JavaScript errors or measured content overflow. Clock geometry stayed fixed across the event scenarios. Smaller error/dismissal states reduce agenda capacity to reserve space for notices. Done/Undo, the synthetic reading dialog, CO₂ clamping, and night visibility controls were exercised. Screenshots of light, dark, night, reduced-content, and 800×480 states are saved beside the HTML. These are prototype smoke checks, not production tests or evidence of on-device readability.
+The refined option-A study instead lays out at the selected viewport dimensions and scales only its browser preview frame. Local Chromium checks covered 39 combinations of viewport, event scenario, and room preset with no JavaScript errors or measured content overflow. Clock geometry stayed fixed across the event scenarios. Smaller error/dismissal states reduce agenda capacity to reserve space for notices. Done/Undo, the synthetic reading dialog, CO₂ clamping, and feature visibility controls were exercised. Screenshots of light, dark, reduced-content, and 800×480 states are saved beside the HTML. These are prototype smoke checks, not production tests or evidence of on-device readability.
 
 Desktop screenshots can reveal crowding and clipping; they cannot establish legibility at 2–3 metres or kiosk behavior on Lineage. Evaluate chosen options on the real device before accepting typography. Do not shrink all text to accommodate longer calendars: agree a deliberate content limit and overflow rule.
 

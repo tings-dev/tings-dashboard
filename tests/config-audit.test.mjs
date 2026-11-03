@@ -16,12 +16,12 @@ test('all supported scalar and list fields have translated labels and options', 
     for (const label of field.group === 'visibility' ? field.path.split('.').slice(1) : [key]) assert.ok(label in TRANSLATIONS[locale], `${locale}: ${label}`);
     assert.notEqual(t(field.group), field.group, `${locale}: ${field.group}`);
     for (const choice of field.options ?? []) {
-      const label = choice === 'night' ? 'night_preset' : choice === 'entity' ? 'night_entity_mode' : choice;
+      const label = choice;
       assert.ok(label in TRANSLATIONS[locale], `${locale}: ${label}`);
     }
   }
 });
 test('full configuration survives YAML with independent disabled settings and extra HA keys', () => {
-  const config = normalizeConfig({ instance_id: 'audit', readings: [{ entity: 'sensor.temperature', enabled: false, night: false, precision: 6, future: 'keep' }], calendar: { sources: [{ entity: 'calendar.personal', enabled: false, color: '#112233' }] }, night: { mode: 'entity', entity: 'input_boolean.night' }, features: { readings: { enabled: true, night: false } }, appearance: { day: 'light', night: 'dark', colors: { text: '#000000' }, night_colors: { text: '#ffffff' } }, grid_options: { columns: 'full' } });
+  const config = normalizeConfig({ instance_id: 'audit', readings: [{ entity: 'sensor.temperature', enabled: false, precision: 6, future: 'keep' }], calendar: { sources: [{ entity: 'calendar.personal', enabled: false, color: '#112233' }] }, features: { readings: { enabled: true } }, appearance: { preset: 'light', colors: { text: '#000000' } }, grid_options: { columns: 'full' } });
   assert.deepEqual(normalizeConfig(parse(stringify(config))), config);
 });

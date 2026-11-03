@@ -2,7 +2,7 @@
 
 This document records the stage-1 baseline. Live readings, CO₂, and weather have since been implemented; see [stage 2](stage-2.md) for sensor/weather configuration and [stage 3](stage-3.md) for calendars and persistent Done/Undo.
 
-Stage 1 implements the accepted design's visual foundation. Live readings/weather, calendar retrieval and rules, entity-controlled/scheduled night activation, and persistent Done/Undo remain in stages 2–4. No existing Home Assistant dashboard or device configuration has been changed.
+Stage 1 implements the accepted design's visual foundation. Live readings/weather, calendar retrieval and rules, persistent Done/Undo remain in stages 2–3. No existing Home Assistant dashboard or device configuration has been changed.
 
 ## Build and preview
 
@@ -15,9 +15,9 @@ npm run preview
 
 Open <http://127.0.0.1:8765>. The command builds the card and starts a loopback-only development server. Set `TINGS_DASHBOARD_PORT` to select another port. Re-run the command after source changes; there is no hot reload.
 
-The preview loads the same `dist/tings-dashboard.js` bundle used by Home Assistant. Its separate development bundle supplies synthetic presentations and a fixed example time. Select **Live clock** for the real time. Examples cover seven content combinations, three appearances, event states, unavailable data, and two/four readings. The visual editor and YAML pane round-trip the actual configuration. Invalid YAML or field drafts keep the displayed card at its last valid configuration.
+The preview loads the same `dist/tings-dashboard.js` bundle used by Home Assistant. Its separate development bundle supplies synthetic presentations and a fixed example time. Select **Live clock** for the real time. Examples cover seven content combinations, two appearances, event states, unavailable data, and two/four readings. The visual editor and YAML pane round-trip the actual configuration. Invalid YAML or field drafts keep the displayed card at its last valid configuration.
 
-The appearance selector's **Night state** sets explicit rendering state. It is not a simulation of automatic entity/schedule activation. Use **Remove synthetic data** to see the genuine stage-1 unavailable placeholders for enabled data regions. No synthetic event or sensor values ship inside the card bundle.
+Use **Remove synthetic data** to see the genuine stage-1 unavailable placeholders for enabled data regions. No synthetic event or sensor values ship inside the card bundle.
 
 ## Local artifact
 
@@ -42,8 +42,7 @@ time_zone: auto
 time_format: auto
 date_format: auto
 appearance:
-  day: light
-  night: night
+  preset: light
 layout:
   height: viewport
   clock_scale: 1
@@ -54,13 +53,10 @@ layout:
 features:
   clock:
     enabled: true
-    night: true
   date:
     enabled: true
-    night: true
   room:
     enabled: true
-    night: false
 ```
 
 All supported fields appear in the visual editor. Defaults can be omitted from YAML. A field set to `null` is invalid, rather than an instruction to reset it. Unknown properties are preserved for Home Assistant metadata or future stages, but have no new behavior in this stage. In particular, no source/entity settings are interpreted yet.
@@ -82,20 +78,20 @@ Card/editor labels are translated into English and German; other languages curre
 
 ### Feature visibility
 
-Each feature accepts `{ enabled: boolean, night: boolean }`. Effective night visibility is **enabled AND night**; a night setting cannot enable a globally disabled feature. Disabling a feature preserves its settings.
+Each feature accepts `{ enabled: boolean }`. Disabling a feature preserves its settings.
 
-| Feature | Enabled default | Night default |
-| --- | --- | --- |
-| `room` | true (blank name has no rendered heading) | false |
-| `clock` | true | true |
-| `date` | true | true |
-| `readings` | false | true |
-| `weather` | false | false |
-| `calendar` | false | false |
-| `co2_bar` | false | false |
-| `co2_value` | false | false |
-| `co2_status` | false | false |
-| `co2_marks` | false | false |
+| Feature | Enabled default |
+| --- | --- |
+| `room` | true (blank name has no rendered heading) |
+| `clock` | true |
+| `date` | true |
+| `readings` | false |
+| `weather` | false |
+| `calendar` | false |
+| `co2_bar` | false |
+| `co2_value` | false |
+| `co2_status` | false |
+| `co2_marks` | false |
 
 The stage-1 editor exposes group visibility for readings. Selecting, ordering, and individually hiding the actual zero-to-four sensor readings arrives with the source adapter in stage 2. The layout renderer already supports up to four supplied display readings.
 
@@ -103,7 +99,7 @@ Enabled data regions without an adapter show explicit unavailable placeholders. 
 
 ### Appearance and layout
 
-`appearance.day` and `appearance.night` independently select `dark`, `light`, or `night`. Defaults are `dark`/`night`. The optional `appearance.colors` and `appearance.night_colors` mappings override `background`, `text`, `muted`, `accent`, `divider`, and `rail`. Values are six/eight-digit hex colors; an empty string inherits the preset. Overrides for one presentation do not change the other. Custom colors remain the user's responsibility for contrast; default presets are the starting point for the stage-5 audit.
+`appearance.preset` selects `dark` (default) or `light`. The optional `appearance.colors` mapping overrides `background`, `text`, `muted`, `accent`, `divider`, and `rail`. Values are six/eight-digit hex colors; an empty string inherits the preset. Each dashboard has one presentation. Create another dashboard for different colors or enabled sections and let Home Assistant control switching. Custom colors need their own contrast check.
 
 | Field | Default | Supported range |
 | --- | --- | --- |
@@ -131,7 +127,7 @@ The numeric ranges were checked in their small/large combinations at 1280×800, 
 - `src/i18n.js`: English/German labels and errors.
 - `preview/`: synthetic fixtures and preview-only fixed-time subclass. Kept out of the production bundle.
 
-`card.night` is explicit adapter state. Stage 4 will supply it from a selected entity or schedule. `currentTime()` is an overridable seam for deterministic previews/tests; the production element always returns the current system time.
+`currentTime()` is an overridable seam for deterministic previews/tests; the production element always returns the current system time.
 
 ## Verification
 
@@ -143,7 +139,7 @@ npm run test:browser
 
 The browser command builds first and starts/stops its own local server. Install a compatible Playwright Chromium with `npx playwright install chromium --only-shell`, or set `TINGS_DASHBOARD_CHROMIUM` to an existing executable. It does not require the sibling `echo-show-card` repository. Generated screenshots go to ignored `artifacts/`.
 
-Checks cover clock timezone/DST/date boundaries; configuration defaults, validation and YAML round trips; 63 content/theme/viewport combinations; calendar mode geometry; two/four readings; layout tuning extremes; invalid editor and YAML drafts; unknown-property preservation; text injection; locale updates; timer cleanup/reconnect; narrow editor layout; and reduced motion. Real HA card-editor hosting, native device rendering, and physical distance readability remain unverified.
+Checks cover clock timezone/DST/date boundaries; configuration defaults, validation and YAML round trips; 42 content/theme/viewport combinations; calendar mode geometry; two/four readings; layout tuning extremes; invalid editor and YAML drafts; unknown-property preservation; text injection; locale updates; timer cleanup/reconnect; narrow editor layout; and reduced motion. Real HA card-editor hosting, native device rendering, and physical distance readability remain unverified.
 
 ## Integration references
 

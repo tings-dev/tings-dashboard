@@ -1,6 +1,5 @@
 import { CalendarSource } from './calendar-source.js';
 import { calendarPresentation } from './calendar-model.js';
-import { NightControl } from './night.js';
 import { Dismissals } from './dismissals.js';
 import { environmentPresentation } from './environment.js';
 import { ForecastSource } from './forecast.js';
@@ -26,16 +25,11 @@ export class TingsDashboard extends HTMLElement {
     this._forecast = new ForecastSource(() => this._refreshData());
     this._calendar = new CalendarSource(() => this._refreshData(), () => this.currentTime().getTime());
     this._dismissals = new Dismissals();
-    this._nightControl = new NightControl();
     this._onStorage = event => {
       if (event.key === this._dismissals.key || event.key === null) {
         this._dismissals.reload(this.currentTime().getTime()); this._refreshData();
       }
-      if (event.key === this._nightControl.key || event.key === null) {
-        this._nightControl.reload(); this._applyNight(); this._syncSources(); this._render();
-      }
     };
-    this._night = false;
     this._resize = new ResizeObserver(() => this._layout());
     this._onVisibility = () => this._startClock();
     this._root.addEventListener('click', event => {
@@ -57,7 +51,6 @@ export class TingsDashboard extends HTMLElement {
       throw new Error(configErrorText(error, translator(this._preferences?.locale)), { cause: error });
     }
     this._config = next;
-    this._applyNight();
     this._dismissals.setScope(next.instance_id, this.currentTime().getTime());
     this.style.height = `var(--tings-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--header-height, 0px))' : `${next.layout.height}px`})`;
     this.classList.toggle('motion', next.motion);
@@ -68,20 +61,11 @@ export class TingsDashboard extends HTMLElement {
     this._hass = value;
     if (!this._config) return;
     const next = resolveClockPreferences(this._config, value);
-    const nightChanged = this._applyNight();
     this._syncSources();
-    if (nightChanged || JSON.stringify(next) !== JSON.stringify(this._preferences)) this._render();
+    if (JSON.stringify(next) !== JSON.stringify(this._preferences)) this._render();
     else this._refreshData();
   }
   get hass() { return this._hass; }
-  // Explicit preview/adapter state when automatic activation is off.
-  set night(value) {
-    if (typeof value !== 'boolean') throw new TypeError('night must be boolean');
-    this._manualNight = value;
-    if (this._config?.night.mode !== 'off' || value === this._night) return;
-    this._night = value; this._dialog.close(); this._syncSources(); this._render();
-  }
-  get night() { return this._night; }
   set presentation(value) {
     if (value?.readings?.length > 4) throw new RangeError('At most four displayed readings');
     this._presentation = value ? structuredClone(value) : {};
@@ -92,7 +76,6 @@ export class TingsDashboard extends HTMLElement {
     document.addEventListener('visibilitychange', this._onVisibility);
     window.addEventListener('storage', this._onStorage);
     if (!this._config) this.setConfig({});
-    this._nightControl.reload(); this._applyNight();
     this._syncSources(); this._render(); this._startClock();
   }
   disconnectedCallback() {
@@ -108,18 +91,12 @@ export class TingsDashboard extends HTMLElement {
     clearTimeout(this._timer); this._timer = undefined;
     if (!this.isConnected) return;
     this._tick();
-    if (!document.hidden || this._config?.night.mode === 'schedule') this._timer = setTimeout(() => this._startClock(), document.hidden ? 30000 : 1000 - Date.now() % 1000);
-  }
-  _applyNight() {
-    if (!this._config) return false;
-    const next = this._config.night.mode === 'off' ? this._manualNight ?? false : this._nightControl.resolve(this._config, this._hass, this.currentTime());
-    if (next === this._night) return false;
-    this._night = next; this._dialog.close(); return true;
+    if (!document.hidden) this._timer = setTimeout(() => this._startClock(), 1000 - Date.now() % 1000);
   }
   _syncSources() {
     if (!this._config) return;
-    this._forecast.update(this._config, this._hass, this._night, this.isConnected);
-    this._calendar.update(this._config, this._hass, this._night, this.isConnected, resolveClockPreferences(this._config, this._hass).timeZone);
+    this._forecast.update(this._config, this._hass, this.isConnected);
+    this._calendar.update(this._config, this._hass, this.isConnected, resolveClockPreferences(this._config, this._hass).timeZone);
   }
   _showTitle(button) {
     this._dialog.replaceChildren();
@@ -144,7 +121,7 @@ export class TingsDashboard extends HTMLElement {
     const now = this.currentTime(), dismissed = this._dismissals.active(now.getTime());
     const calendarConfig = { ...this._config.calendar, sources: this._config.calendar.sources.map(source => ({ ...source, label: source.label || this._hass?.states?.[source.entity]?.attributes?.friendly_name || source.entity })) };
     const calendar = calendarPresentation(calendarConfig, this._calendar.records, now.getTime(), this._preferences, this._t, dismissed, this._dismissals.latest(now.getTime()), this._dismissals.failed);
-    return { ...EMPTY_PRESENTATION, calendar, ...environmentPresentation(this._config, this._hass, this._night, this._preferences, this._t, this._forecast.items, this.currentTime()), ...this._presentation };
+    return { ...EMPTY_PRESENTATION, calendar, ...environmentPresentation(this._config, this._hass, this._preferences, this._t, this._forecast.items, this.currentTime()), ...this._presentation };
   }
   _refreshData() {
     if (!this._preferences || !this._config) return;
@@ -158,7 +135,7 @@ export class TingsDashboard extends HTMLElement {
     const data = this._data(); this._dataSignature = JSON.stringify(data);
     const active = this.shadowRoot.activeElement;
     const buttons = new Map([...this._root.querySelectorAll('button.reading, button.calendar-action, button.event-title')].map(button => [button.dataset.key, button]));
-    renderView(this._root, this._config, data, this._night, this._t);
+    renderView(this._root, this._config, data, this._t);
     // Preserve the native control and keyboard focus when live readings change.
     for (const button of this._root.querySelectorAll('button.reading, button.calendar-action, button.event-title')) {
       const old = buttons.get(button.dataset.key);
@@ -175,7 +152,6 @@ export class TingsDashboard extends HTMLElement {
   }
   _tick() {
     if (!this._format) return;
-    if (this._applyNight()) { this._syncSources(); this._render(); return; }
     if (this.isConnected) this._calendar.ensureFresh();
     const now = this.currentTime();
     const value = this._format(now);

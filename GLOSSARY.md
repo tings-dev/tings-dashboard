@@ -9,7 +9,7 @@ These terms describe the new design; the existing Echo Show card has its own glo
 A room-specific display of enabled information, usable at a glance without touch. Its selected information can differ from room to room.
 
 **Feature**:
-An independently configurable and disableable part of the room dashboard, such as its clock, calendar, a sensor reading, or CO₂ indicator. Its nighttime visibility can differ from its normal visibility.
+An independently configurable and disableable part of the room dashboard, such as its clock, calendar, a sensor reading, or CO₂ indicator.
 
 **CO₂ indicator**:
 A vertical visual representation of the room's CO₂ reading. Its height communicates the reading within a configured range, while its color identifies the current CO₂ band.
@@ -40,9 +40,6 @@ The optional display mode for a forthcoming event within a configured period bef
 
 **In progress**:
 The display mode for an event that has started and has not yet ended.
-
-**Night mode**:
-A presentation with its own appearance and section visibility, activated by a configured schedule or Home Assistant on/off entity. Hidden sections release their space and stay hidden regardless of event or CO₂ conditions.
 
 **Disabled feature**:
 A feature deliberately hidden by configuration, releasing its layout space while retaining its settings.

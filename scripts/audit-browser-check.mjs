@@ -36,7 +36,7 @@ export async function checkAudit(page, bounds, settle) {
   const stable = await page.evaluate(() => { const el = preview.card.shadowRoot.activeElement; preview.card._render(); return preview.card.shadowRoot.activeElement === el; });
   assert.ok(stable, 'live updates preserve focused title controls');
   // Contrast checks cover every default text role, not only the CO₂ number.
-  for (const theme of ['dark', 'light', 'night']) {
+  for (const theme of ['dark', 'light']) {
     await page.selectOption('#appearance', theme); await settle();
     const ratios = await page.locator('#card').locator('.screen').evaluate(el => {
       const css = getComputedStyle(el);
