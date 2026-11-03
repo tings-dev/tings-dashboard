@@ -6,6 +6,7 @@ button{font:inherit;min-height:44px;padding:8px 12px;margin:4px;border:1px solid
 .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px}
 label{display:flex;flex-direction:column;gap:7px;min-width:0;line-height:1.4}input,select{font:inherit;color:inherit;background:var(--field-bg);border:1px solid var(--divider-color,#888);border-radius:4px;padding:9px;width:100%;min-height:44px;min-width:0}
 input[type=checkbox]{width:24px;height:24px;min-height:24px;accent-color:var(--primary-color,#436e57);margin:8px;cursor:pointer}.check{flex-direction:row;align-items:center}
+.band-color{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:7px 8px}.band-color input[type=color]{width:48px;height:44px;padding:4px;align-self:end;cursor:pointer}.band-color>.error{grid-column:1/-1}
 small{font-size:12px;color:var(--secondary-text-color,#555)}.error{color:var(--error-color,#aa2020);font-size:13px;margin:0;line-height:1.5;overflow-wrap:anywhere}.error:empty{display:none}
 [aria-invalid=true]{border-color:var(--error-color,#aa2020)}.notice{line-height:1.5;color:var(--secondary-text-color,#555)}
 .visibility-row{display:grid;grid-template-columns:minmax(100px,1fr) 90px;gap:8px;align-items:center;border-bottom:1px solid var(--divider-color,#ddd);padding:6px 0;line-height:1.4}.visibility-row label{align-items:center}.heading{font-size:12px;border:0;color:var(--secondary-text-color,#555)}
@@ -15,7 +16,7 @@ export class TingsDashboardEditor extends HTMLElement {
   constructor() {
     super(); this.attachShadow({ mode: 'open' });
     this.shadowRoot.addEventListener('input', event => this._input(event));
-    this.shadowRoot.addEventListener('change', event => { if (event.target.tagName === 'SELECT') this._input(event); });
+    this.shadowRoot.addEventListener('change', event => { if (event.target.tagName === 'SELECT' || event.target.type === 'color') this._input(event); });
   }
   setConfig(config) {
     const next = normalizeConfig(config);
@@ -31,7 +32,7 @@ export class TingsDashboardEditor extends HTMLElement {
   _language() { return this._draft?.language === 'auto' ? this._hass?.locale?.language ?? this._hass?.language ?? 'en' : this._draft?.language ?? 'en'; }
   _render() {
     if (!this._config) return;
-    const active = this.shadowRoot.activeElement, focusPath = active?.dataset.path;
+    const active = this.shadowRoot.activeElement, focusPath = active?.dataset.path ?? active?.dataset.colorPath;
     const selection = active?.selectionStart == null ? null : [active.selectionStart, active.selectionEnd];
     this._languageRendered = this._language(); this._t = translator(this._languageRendered);
     this.shadowRoot.replaceChildren();
@@ -51,7 +52,7 @@ export class TingsDashboardEditor extends HTMLElement {
     }
     this._suggestions(); this._showError();
     if (focusPath) {
-      const control = this.shadowRoot.querySelector(`[data-path="${focusPath}"]`);
+      const control = this.shadowRoot.querySelector(`[${active.dataset.colorPath ? 'data-color-path' : 'data-path'}="${focusPath}"]`);
       control?.focus({ preventScroll: true });
       if (selection) control?.setSelectionRange(...selection);
     }
@@ -64,6 +65,14 @@ export class TingsDashboardEditor extends HTMLElement {
     const control = this._control(field); label.append(control);
     if (field.kind === 'boolean') label.className = 'check';
     wrapper.append(label);
+    if (field.kind === 'band_color') {
+      wrapper.className = 'band-color';
+      const picker = document.createElement('input'); picker.type = 'color'; picker.dataset.colorPath = field.path;
+      picker.value = /^#[\da-f]{6}$/i.test(control.value) ? control.value : getPath(this._config, field.path) ?? field.defaultValue;
+      picker.setAttribute('aria-label', `${title.textContent}: ${this._t('choose_color')}`);
+      picker.setAttribute('aria-describedby', `error-${field.path}`);
+      wrapper.append(picker);
+    }
     if (field.path === 'instance_id') {
       const hint = document.createElement('small'); hint.textContent = this._t('instance_hint'); wrapper.append(hint);
       const generate = document.createElement('button'); generate.type = 'button'; generate.textContent = this._t('generate_instance');
@@ -140,9 +149,14 @@ export class TingsDashboardEditor extends HTMLElement {
     }
   }
   _input(event) {
-    const field = configFields(this._draft).find(f => f.path === event.target.dataset?.path);
+    const path = event.target.dataset?.path ?? event.target.dataset?.colorPath;
+    const field = configFields(this._draft).find(f => f.path === path);
     if (!field) return;
     const raw = event.target.value;
+    if (field.kind === 'band_color') {
+      if (event.target.type === 'color') this.shadowRoot.querySelector(`[data-path="${path}"]`).value = raw;
+      else if (/^#[\da-f]{6}$/i.test(raw)) this.shadowRoot.querySelector(`[data-color-path="${path}"]`).value = raw;
+    }
     const value = field.kind === 'boolean' ? event.target.checked
       : ['number', 'integer'].includes(field.kind) ? (raw.trim() ? Number(raw) : null)
       : field.kind === 'precision' ? (raw === 'auto' ? raw : raw.trim() ? Number(raw) : null)

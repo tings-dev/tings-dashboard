@@ -49,5 +49,42 @@ export async function checkEditor(page) {
     preview.editor.hass = preview.hass;
   });
   assert.equal(await page.locator('#editor #entities-sensor option').count(), 5, 'full editor renders repopulate suggestions');
-  console.log('Editor browser checks passed: stable entity choices across HA updates, live additions/removals/renames, filtering and configuration changes.');
+  const editor = page.locator('#editor');
+  const color = editor.locator('[data-path="co2.thresholds.1.color"]');
+  const picker = editor.locator('[data-color-path="co2.thresholds.1.color"]');
+  assert.equal(await editor.locator('input[type=color]').count(), 5, 'four thresholds and the base band offer pickers');
+  assert.match(await picker.getAttribute('aria-label'), /Choose color/);
+  assert.equal(await picker.inputValue(), await color.inputValue());
+  // Native dialogs are OS-owned; dispatch their input/change events on the real control.
+  const choose = (control, value, event = 'input') => control.evaluate((input, { value, event }) => {
+    input.value = value; input.dispatchEvent(new Event(event, { bubbles: true }));
+  }, { value, event });
+  await choose(picker, '#123456');
+  assert.equal(await color.inputValue(), '#123456');
+  assert.equal(await page.evaluate(() => preview.config.co2.thresholds[1].color), '#123456');
+  assert.equal(await page.locator('#card .screen').evaluate(el => el.style.getPropertyValue('--air-color')), '#123456');
+  assert.ok((await page.locator('#yaml').inputValue()).includes('#123456'));
+  await color.fill('#ABCDEF'); assert.equal(await picker.inputValue(), '#abcdef');
+  await color.fill('#nope');
+  assert.equal(await color.getAttribute('aria-invalid'), 'true');
+  assert.equal(await picker.inputValue(), '#abcdef');
+  assert.equal(await page.evaluate(() => preview.config.co2.thresholds[1].color), '#ABCDEF');
+  await choose(picker, '#654321', 'change');
+  assert.equal(await color.getAttribute('aria-invalid'), 'false');
+  assert.equal(await color.inputValue(), '#654321');
+  // A picker must not commit an unrelated invalid draft or lose the pending choice.
+  await editor.locator('[data-path="co2.maximum"]').fill('400');
+  await choose(picker, '#fedcba');
+  assert.equal(await color.inputValue(), '#fedcba');
+  assert.equal(await page.evaluate(() => preview.config.co2.thresholds[1].color), '#654321');
+  await editor.locator('[data-path="co2.maximum"]').fill('2200');
+  assert.equal(await page.evaluate(() => preview.config.co2.thresholds[1].color), '#fedcba');
+  await choose(editor.locator('[data-color-path="co2.base_color"]'), '#112233');
+  assert.equal(await page.evaluate(() => preview.config.co2.base_color), '#112233');
+  await page.locator('#apply').click();
+  assert.equal(await page.locator('#yaml-error').textContent(), '');
+  assert.equal(await picker.inputValue(), '#fedcba');
+  await editor.locator('[data-path="language"]').fill('de-DE');
+  assert.match(await picker.getAttribute('aria-label'), /Farbe auswählen/);
+  console.log('Editor browser checks passed: stable entity choices, filtering, color pickers, hex/YAML synchronization, translations and invalid drafts.');
 }
