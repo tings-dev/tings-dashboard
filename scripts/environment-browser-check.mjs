@@ -48,10 +48,12 @@ export async function checkEnvironment(page, bounds, settle) {
         const strip = root.querySelector('.air').getBoundingClientRect();
         const caption = root.querySelector('.co2-caption').getBoundingClientRect();
         return { left: text.left - box.left, right: box.right - text.right,
+          alignedWithStatus: Math.abs(text.right - caption.right) < 1,
           besideStrip: box.right < strip.left, aboveStatus: box.bottom <= caption.top,
           sameWidth: Math.abs(el.clientWidth - root.querySelector('.air').clientWidth) < 1 };
       });
-      assert.ok(Math.abs(fit.left - 8) < 1 && Math.abs(fit.right - 8) < 1, `${theme}/${raw}: CO₂ value retains its fitted size and padding`);
+      assert.ok(Math.abs(fit.left - 16) < 1 && Math.abs(fit.right) < 1, `${theme}/${raw}: CO₂ value retains its fitted size`);
+      assert.ok(fit.alignedWithStatus, `${theme}/${raw}: CO₂ value aligns with the right edge of the status label`);
       assert.ok(fit.besideStrip && fit.aboveStatus && fit.sameWidth, `${theme}/${raw}: CO₂ value sits above the status to the left of the strip`);
       assert.deepEqual(await bounds(), [], `${theme}/${raw}`);
     }
