@@ -66,6 +66,38 @@ export async function checkAudit(page, bounds, settle) {
       const card = document.createElement('tings-dashboard'); card.setConfig({}); document.body.append(card);
       return { version: ctor.version, clock: !!card.shadowRoot.querySelector('.clock'), editor: !!ctor.getConfigElement(), picker: customCards.filter(c => c.type === 'tings-dashboard').length };
     }), { version, clock: true, editor: true, picker: 1 });
+    await checkViewportHeight(releasePage);
   } finally { await releaseContext.close(); }
   console.log(`Stage 5 browser audit passed: ${fields.length} editor fields, translations, full titles, focus, contrast and standalone release.`);
+}
+
+export async function checkViewportHeight(page) {
+  await page.setViewportSize({ width: 800, height: 480 });
+  for (const preset of ['light', 'dark']) {
+    for (const scenario of [
+      { name: 'no header', header: 0, expected: 480 },
+      { name: 'visible HA header', header: 56, expected: 424 },
+      { name: 'hidden kiosk header', header: 56, kiosk: 0, expected: 480 },
+      { name: 'custom kiosk header', header: 56, kiosk: 24, expected: 456 },
+      { name: 'fixed height', header: 56, kiosk: 0, height: 600, expected: 600 },
+      { name: 'explicit height override', header: 56, kiosk: 0, height: 600, override: 520, expected: 520 },
+    ]) {
+      const height = await page.evaluate(({ preset, scenario }) => {
+        document.body.style.margin = '0';
+        const panel = document.createElement('div');
+        panel.style.setProperty('--header-height', `${scenario.header}px`);
+        const view = document.createElement('div');
+        if (scenario.kiosk !== undefined) view.style.setProperty('--kiosk-header-height', `${scenario.kiosk}px`);
+        if (scenario.override !== undefined) view.style.setProperty('--tings-dashboard-height', `${scenario.override}px`);
+        panel.attachShadow({ mode: 'open' }).append(view);
+        const card = document.createElement('tings-dashboard');
+        card.setConfig({ appearance: { preset }, layout: { height: scenario.height ?? 'viewport' } });
+        view.append(card);
+        document.body.replaceChildren(panel);
+        return card.shadowRoot.querySelector('.screen').getBoundingClientRect().height;
+      }, { preset, scenario });
+      assert.equal(height, scenario.expected, `${preset}/${scenario.name}: dashboard fills its available height`);
+    }
+  }
+  console.log('Viewport height checks passed: normal and kiosk headers, fixed heights and explicit overrides in both themes.');
 }

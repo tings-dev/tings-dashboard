@@ -52,7 +52,7 @@ export class TingsDashboard extends HTMLElement {
     }
     this._config = next;
     this._dismissals.setScope(next.instance_id, this.currentTime().getTime());
-    this.style.height = `var(--tings-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--header-height, 0px))' : `${next.layout.height}px`})`;
+    this.style.height = `var(--tings-dashboard-height, ${next.layout.height === 'viewport' ? 'calc(100dvh - var(--kiosk-header-height, var(--header-height, 0px)))' : `${next.layout.height}px`})`;
     this.classList.toggle('motion', next.motion);
     this._syncSources(); this._render();
     if (this.isConnected) this._startClock();
