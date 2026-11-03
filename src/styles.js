@@ -27,8 +27,9 @@ export const CARD_STYLES = `
 .co2-caption-value{font-size:calc(var(--label-font) * var(--co2-value-scale))}
 .co2-caption-status{font-size:calc(var(--label-font) * var(--co2-status-scale))}
 .dot{background:var(--air-color,var(--muted));width:calc(7px * var(--co2-caption-scale));height:calc(7px * var(--co2-caption-scale));border-radius:50%;flex:none}
-.rail-caption{position:absolute;bottom:14px;right:var(--pad);max-width:calc(100% - 2 * var(--pad))}
-.calendar{--component-scale:var(--calendar-scale);min-width:0;min-height:0;border-inline-start:1px solid var(--divider);padding-inline-start:var(--gap);padding-top:calc(var(--calendar-top) * var(--calendar-scale));overflow:hidden}
+.rail-caption{position:absolute;bottom:14px;right:var(--pad);max-width:calc(100% - 2 * var(--pad));display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.rail-caption .co2-caption{max-width:100%}
+.calendar{--component-scale:var(--calendar-scale);min-width:0;min-height:0;border-inline-start:1px solid var(--divider);padding-inline-start:var(--gap);padding-top:calc(var(--calendar-top) * var(--calendar-scale));padding-bottom:var(--co2-value-space,0px);overflow:hidden}
 .calendar-heading{display:flex;justify-content:space-between;align-items:center;gap:calc(12px * var(--calendar-scale));color:var(--muted);font-size:calc(var(--label-font) * var(--component-scale,1));line-height:1.3;letter-spacing:.1em;text-transform:uppercase;margin-bottom:calc(20px * var(--calendar-scale))}
 .calendar-heading small{font-size:.8em;letter-spacing:0;text-transform:none}
 .all-day{font-size:calc(var(--label-font) * var(--component-scale,1));color:var(--muted);line-height:1.4;border-bottom:1px solid var(--divider);padding-bottom:calc(12px * var(--calendar-scale));margin-bottom:calc(4px * var(--calendar-scale));overflow-wrap:anywhere}
@@ -47,7 +48,7 @@ h2{font-size:calc(var(--event-font) * var(--component-scale,1));font-weight:400;
 .air{position:relative;background:var(--rail);border-inline-start:1px solid var(--divider);min-width:0;overflow:hidden}
 .air-fill{position:absolute;bottom:0;left:0;right:0;height:var(--air-fill,0%);background:var(--air-color,var(--muted))}
 .air-top{--component-scale:var(--co2-bar-scale);position:absolute;top:var(--pad);left:3px;right:3px;text-align:center;font-size:calc(var(--source-font) * var(--component-scale,1));letter-spacing:.08em;color:var(--text);padding:3px 0}
-.air-value{--component-scale:var(--co2-value-scale);position:absolute;bottom:24px;left:0;right:0;text-align:center;font-size:calc(var(--when-font) * var(--component-scale,1));color:var(--text);padding:4px 8px;white-space:nowrap;line-height:1.2}
+.air-value{--component-scale:var(--co2-value-scale);width:var(--co2-value-width);max-width:100%;text-align:center;font-size:calc(var(--when-font) * var(--component-scale,1));color:var(--text);padding:4px 8px;white-space:nowrap;line-height:1.2}
 .mark{position:absolute;right:0;width:calc(8px * var(--co2-marks-scale));border-top:calc(1px * var(--co2-marks-scale)) solid var(--text);opacity:.3}
 .solo .room{justify-content:center}.solo .timeblock{text-align:center}.solo .clock{font-size:calc(var(--solo-clock-font) * var(--component-scale,1));justify-content:center}.solo .footer{justify-items:center}
 .readings-only .home{grid-template-rows:auto minmax(0,1fr)}.readings-only .timeblock{display:none}.readings-only .footer{align-self:center;justify-items:center}

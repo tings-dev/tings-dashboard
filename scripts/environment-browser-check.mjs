@@ -30,7 +30,7 @@ export async function checkEnvironment(page, bounds, settle) {
   assert.equal(await card.locator('.screen').evaluate(e => e.style.getPropertyValue('--air-fill')), '0%');
   await page.selectOption('#source-state', 'missing'); assert.equal(await card.locator('.reading:disabled').count(), 4);
   await page.selectOption('#source-state', 'online');
-  // CO₂ text sits directly on the strip at every indicator level.
+  // The CO₂ number sits above the status, beside the strip at every indicator level.
   for (const theme of ['dark', 'light']) {
     await page.selectOption('#appearance', theme);
     for (const [raw, height, color] of [['250', '0%', '#8daea0'], ['1000', '37.5%', '#d9b36f'], ['2800', '100%', '#c96964']]) {
@@ -44,9 +44,15 @@ export async function checkEnvironment(page, bounds, settle) {
       const fit = await card.locator('.air-value').evaluate(el => {
         const range = document.createRange(); range.selectNodeContents(el);
         const text = range.getBoundingClientRect(), box = el.getBoundingClientRect();
-        return { left: text.left - box.left, right: box.right - text.right };
+        const root = el.getRootNode();
+        const strip = root.querySelector('.air').getBoundingClientRect();
+        const caption = root.querySelector('.co2-caption').getBoundingClientRect();
+        return { left: text.left - box.left, right: box.right - text.right,
+          besideStrip: box.right < strip.left, aboveStatus: box.bottom <= caption.top,
+          sameWidth: Math.abs(el.clientWidth - root.querySelector('.air').clientWidth) < 1 };
       });
-      assert.ok(Math.abs(fit.left - 8) < 1 && Math.abs(fit.right - 8) < 1, `${theme}/${raw}: CO₂ value fills the strip with padding`);
+      assert.ok(Math.abs(fit.left - 8) < 1 && Math.abs(fit.right - 8) < 1, `${theme}/${raw}: CO₂ value retains its fitted size and padding`);
+      assert.ok(fit.besideStrip && fit.aboveStatus && fit.sameWidth, `${theme}/${raw}: CO₂ value sits above the status to the left of the strip`);
       assert.deepEqual(await bounds(), [], `${theme}/${raw}`);
     }
   }

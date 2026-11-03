@@ -187,17 +187,21 @@ export class TingsDashboard extends HTMLElement {
       'focus-top': (width < 1000 ? 14 : 36) * spacing,
     };
     for (const [key, value] of Object.entries(sizes)) this._root.style.setProperty(`--${key}`, `${value}px`);
-    this._fitClock(); this._fitCO2Value(); fitAgenda(this._root, this._t);
+    this._fitCO2Value(); this._fitClock(); fitAgenda(this._root, this._t);
   }
   _fitCO2Value() {
     const value = this._root.querySelector('.air-value');
     if (!value) return;
+    // Keep the original strip-based size after moving the number beside it.
+    this._root.style.setProperty('--co2-value-width', `${this._root.querySelector('.air').clientWidth}px`);
     value.style.fontSize = '100px';
     const style = getComputedStyle(value);
     const available = Math.max(0, value.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
     const range = document.createRange(); range.selectNodeContents(value);
     const scale = this._config.features.co2_value.scale;
     value.style.fontSize = `${100 * available / Math.max(1, range.getBoundingClientRect().width) * scale}px`;
+    const status = this._root.querySelector('.rail-caption .co2-caption');
+    this._root.style.setProperty('--co2-value-space', `${value.offsetHeight + (status ? 4 : 0)}px`);
   }
   _fitClock() {
     const clock = this._root.querySelector('.clock');
