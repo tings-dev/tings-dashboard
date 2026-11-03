@@ -30,20 +30,23 @@ export async function checkEnvironment(page, bounds, settle) {
   assert.equal(await card.locator('.screen').evaluate(e => e.style.getPropertyValue('--air-fill')), '0%');
   await page.selectOption('#source-state', 'missing'); assert.equal(await card.locator('.reading:disabled').count(), 4);
   await page.selectOption('#source-state', 'online');
-  // Default text remains on an opaque surface at all indicator levels.
+  // CO₂ text sits directly on the strip at every indicator level.
   for (const theme of ['dark', 'light']) {
     await page.selectOption('#appearance', theme);
     for (const [raw, height, color] of [['250', '0%', '#8daea0'], ['1000', '37.5%', '#d9b36f'], ['2800', '100%', '#c96964']]) {
       await page.locator('#co2-demo').fill(raw); await settle();
       const actual = await card.locator('.screen').evaluate(e => [e.style.getPropertyValue('--air-fill'), e.style.getPropertyValue('--air-color')]);
       assert.deepEqual(actual, [height, color]);
-      const contrast = await card.locator('.air-value').evaluate(element => {
-        const style = getComputedStyle(element);
-        const luminance = color => color.match(/[\d.]+/g).slice(0, 3).map(Number).map(v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }).reduce((sum, v, i) => sum + v * [.2126, .7152, .0722][i], 0);
-        const a = luminance(style.color), b = luminance(style.backgroundColor);
-        return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+      for (const selector of ['.air-top', '.air-value']) {
+        assert.equal(await card.locator(selector).evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
+      }
+      assert.equal(await card.locator('.air-value').textContent(), Number(raw).toLocaleString('en-GB'));
+      const fit = await card.locator('.air-top').evaluate(el => {
+        const range = document.createRange(); range.selectNodeContents(el);
+        const text = range.getBoundingClientRect(), box = el.getBoundingClientRect();
+        return { left: text.left - box.left, right: box.right - text.right };
       });
-      assert.ok(contrast >= 4.5, `${theme}/${raw}: CO₂ text contrast ${contrast}`);
+      assert.ok(Math.abs(fit.left - 6) < 1 && Math.abs(fit.right - 6) < 1, `${theme}/${raw}: CO₂ label fills the strip with padding`);
       assert.deepEqual(await bounds(), [], `${theme}/${raw}`);
     }
   }
@@ -141,5 +144,5 @@ export async function checkEnvironment(page, bounds, settle) {
   assert.equal(await page.evaluate(() => stops), 3);
   await page.setViewportSize({ width: 400, height: 900 }); await settle();
   assert.equal(await editor.evaluate(e => { const r = e.getBoundingClientRect(); return [...e.shadowRoot.querySelectorAll('input,select,fieldset,button')].some(x => x.getBoundingClientRect().right > r.right + 1); }), false);
-  console.log('Stage 2 browser checks passed: live readings/actions, focus, availability, CO₂ contrast/bands, forecast layouts/lifecycle, and list editor/YAML controls.');
+  console.log('Stage 2 browser checks passed: live readings/actions, focus, availability, CO₂ transparency/label fitting/bands, forecast layouts/lifecycle, and list editor/YAML controls.');
 }

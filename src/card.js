@@ -187,7 +187,16 @@ export class TingsDashboard extends HTMLElement {
       'focus-top': (width < 1000 ? 14 : 36) * spacing,
     };
     for (const [key, value] of Object.entries(sizes)) this._root.style.setProperty(`--${key}`, `${value}px`);
-    this._fitClock(); fitAgenda(this._root, this._t);
+    this._fitClock(); this._fitCO2Label(); fitAgenda(this._root, this._t);
+  }
+  _fitCO2Label() {
+    const label = this._root.querySelector('.air-top');
+    if (!label) return;
+    label.style.fontSize = '100px';
+    const style = getComputedStyle(label);
+    const available = Math.max(0, label.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
+    const range = document.createRange(); range.selectNodeContents(label);
+    label.style.fontSize = `${100 * available / Math.max(1, range.getBoundingClientRect().width)}px`;
   }
   _fitClock() {
     const clock = this._root.querySelector('.clock');
